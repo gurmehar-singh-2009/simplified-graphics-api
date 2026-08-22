@@ -19,7 +19,7 @@
 ## Project Roadmap
 
 | Importance | Feature | Status |
-| :---: | :-- | :-- | :--- |
+| :---: | :-- | :--- |
 | High | Text Rendering | Planned |
 | Medium | 2D shape primitives | Planned |
 | Medium | 3D shape primitives | Planned |
