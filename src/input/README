@@ -1,0 +1,9 @@
+so for this, we may need to forward inputs later to the user
+
+in forms of callback like:
+
+engine.onMouseMove = (event) => {
+    let [x, y] = event.pos;
+}
+
+or something
