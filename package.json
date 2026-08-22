@@ -6,12 +6,17 @@
     "dev": "bun --watch run src/index.ts",
     "start": "bun run src/index.ts",
     "build": "bun build ./src/index.ts --outdir ./dist",
+    "format": "bunx --bun @biomejs/biome format --write",
+    "lint": "bunx --bun @biomejs/biome lint --write",
+    "check:unsafe": "bunx --bun @biomejs/biome check --write --unsafe ./src",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.10",
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
-  }
+  },
+  "dependencies": {}
 }

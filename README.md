@@ -24,3 +24,15 @@
 | Medium | 2D shape primitives | Planned |
 | Medium | 3D shape primitives | Planned |
 | Low | WebGL/WebGPU tutorial | Planned |
+
+
+## Shortcut list (cmds)
+
+- bun run format: formats all files
+- bun run lint: format, lint, and organize imports of all files
+
+
+## notes to selves:
+
+we will not be using monads (this thing is already ambitious as it stands, no need to overcomplicate)
+read the READMEs in each folder for additional information on what everything does (i put it wherever it made sense)
