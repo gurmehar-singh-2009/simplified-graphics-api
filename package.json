@@ -3,7 +3,7 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun --watch run src/index.ts",
+    "dev": "bun run dev-server.ts",
     "start": "bun run src/index.ts",
     "build": "bun build ./src/index.ts --outdir ./dist",
     "format": "bunx --bun @biomejs/biome format --write",
