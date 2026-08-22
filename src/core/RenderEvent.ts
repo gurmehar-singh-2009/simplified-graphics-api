@@ -5,7 +5,7 @@
 import type { Vector2 } from "../math/Vector2";
 
 // i also dont know if this is worth it: returning true/false if the operation failed/succeeded
-// 
+//
 // essentially, this is what they get as the callback param to do stuff with
 export interface RenderEvent {
 	clear(): void;
@@ -17,7 +17,14 @@ export interface RenderEvent {
 	set3DColor(r: number, g: number, b: number, a: number): void;
 
 	drawLine(a: Vector2, b: Vector2): void;
-	drawSquare(x: number, y: number, w: number, h: number): void; // use for rectangle
+
+  drawTriangle(x: number, y: number, size: number, rot?: number): void;
+  drawSquare(x: number, y: number, w: number, h: number, rot?: number): void;
+  drawPentagon(x: number, y: number, size: number, rot?: number): void;
+  drawHexagon(x: number, y: number, size: number, rot?: number): void;
+  drawSeptagon(x: number, y: number, size: number, rot?: number): void;
+  drawOctogon(x: number, y: number, size: number, rot?: number): void;
+  drawCustomSides(x: number, y: number, size: number, sides: number, rot?: number): void;
 	drawPolygon(vertices: Array<Vector2>): void;
 
 	draw(): void;

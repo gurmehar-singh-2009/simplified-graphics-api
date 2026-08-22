@@ -62,14 +62,93 @@ export class DrawLineCommand extends Command {
 	}
 }
 
+export class DrawTriangleCommand extends Command {
+	public readonly type = "draw_triangle" as const;
+
+	constructor(
+		public x: number,
+		public y: number,
+		public size: number,
+		public rot?: number,
+	) {
+		super();
+	}
+}
+
 export class DrawSquareCommand extends Command {
 	public readonly type = "draw_square" as const;
 
 	constructor(
 		public x: number,
 		public y: number,
-		public width: number,
-		public height: number,
+		public w: number,
+		public h: number,
+	) {
+		super();
+	}
+}
+
+export class DrawPentagonCommand extends Command {
+	public readonly type = "draw_pentagon" as const;
+
+	constructor(
+		public x: number,
+		public y: number,
+		public size: number,
+		public rot?: number,
+	) {
+		super();
+	}
+}
+
+export class DrawHexagonCommand extends Command {
+	public readonly type = "draw_hexagon" as const;
+
+	constructor(
+		public x: number,
+		public y: number,
+		public size: number,
+		public rot?: number,
+	) {
+		super();
+	}
+}
+
+export class DrawSeptagonCommand extends Command {
+	public readonly type = "draw_septagon" as const;
+
+	constructor(
+		public x: number,
+		public y: number,
+		public size: number,
+		public rot?: number,
+	) {
+		super();
+	}
+}
+
+export class DrawOctogonCommand extends Command {
+	public readonly type = "draw_octogon" as const;
+
+	constructor(
+		public x: number,
+		public y: number,
+		public size: number,
+		public rot?: number,
+	) {
+		super();
+	}
+}
+
+export class DrawCustomSidePolygonCommand extends Command {
+	public readonly type = "draw_custom_side_polygon" as const;
+
+	constructor(
+		public x: number,
+		public y: number,
+    public size: number,
+		public sides: number,
+		public rot?: number,
 	) {
 		super();
 	}

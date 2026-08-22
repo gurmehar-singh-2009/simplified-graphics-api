@@ -12,7 +12,7 @@ export class CanvasDriver implements BackendDriver {
 
   private backend: CanvasBackend | null = null;
 
-  private clearColor: Array<number> = [255, 0, 0, 1];
+  private clearColor: Array<number> = [255, 255, 255, 1];
 
   init(canvas: HTMLCanvasElement, configs: RenderConfigs): void {
     this.ctx = canvas.getContext("2d");
@@ -21,24 +21,60 @@ export class CanvasDriver implements BackendDriver {
   }
 
   processFrame(commands: Array<Command>): void {
-    console.error("processing frame", commands);
     if (!this.ctx) return;
 
     for (const c of commands) {
       const cmd = c as EngineCommand;
 
-      console.warn(cmd);
-
       switch (cmd.type) {
         case "clear": {
           const [r, g, b, a] = this.clearColor;
-          this.backend!.clear(r!, g!, b!, a!);
+          this.backend?.setClearColor(r!, g!, b!, a!);
+          this.backend?.clear();
 
           break;
         }
 
         case "set_clear":
-          this.backend!.setColor(cmd.r, cmd.g, cmd.b, cmd.a);
+          this.backend?.setClearColor(cmd.r, cmd.g, cmd.b, cmd.a);
+          break;
+
+        case "set_color":
+          this.backend?.setColor(cmd.r, cmd.g, cmd.b, cmd.a);
+          break;
+
+        case "draw_triangle":
+          this.backend?.drawTriangle(cmd.x, cmd.y, cmd.size, cmd.rot);
+          break;
+
+        case "draw_square":
+          this.backend?.drawSquare(cmd.x, cmd.y, cmd.w, cmd.h);
+          break;
+
+        case "draw_pentagon":
+          this.backend?.drawPentagon(cmd.x, cmd.y, cmd.size, cmd.rot);
+          break;
+
+        case "draw_hexagon":
+          this.backend?.drawHexagon(cmd.x, cmd.y, cmd.size, cmd.rot);
+          break;
+
+        case "draw_septagon":
+          this.backend?.drawSeptagon(cmd.x, cmd.y, cmd.size, cmd.rot);
+          break;
+
+        case "draw_octogon":
+          this.backend?.drawOctogon(cmd.x, cmd.y, cmd.size, cmd.rot);
+          break;
+
+        case "draw_custom_side_polygon":
+          this.backend?.drawCustomSides(
+            cmd.x,
+            cmd.y,
+            cmd.size,
+            cmd.sides,
+            cmd.rot,
+          );
           break;
       }
     }

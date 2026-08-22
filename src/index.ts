@@ -1,10 +1,10 @@
 import { Engine } from "./core/Engine";
 import { Backends } from "./core/Renderer";
 
-let canvas = document.createElement("canvas");
+const canvas = document.createElement("canvas");
 document.body.appendChild(canvas);
 
-let engine = new Engine(canvas, {
+const engine = new Engine(canvas, {
   backend: Backends.CANVAS,
   antialias: false,
 });
@@ -14,9 +14,19 @@ console.log(engine)
 engine.start();
 
 engine.onRender = (e) => {
-  console.log("onrender");
-  // e.setClearColor(255, 255, 0, 1);
   e.clear();
+
+  e.set2DColor(255, 0, 0, 1);
+  e.drawSquare(40, 40, 20, 20);
+
+  e.set2DColor(0, 255, 0, 1);
+  e.drawTriangle(80, 100, 35);
+
+  e.set2DColor(0, 0, 255, 1);
+  e.drawOctogon(180, 60, 25);
+
+  e.set2DColor(0, 0, 0, 1);
+  e.drawPentagon(250, 200, 40);
 
   e.draw();
 }
