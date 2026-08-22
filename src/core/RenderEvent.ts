@@ -20,7 +20,7 @@ export interface RenderEvent {
 
 	// 2d
   drawCircle(x: number, y: number, radius: number): void;
-  drawTriangle(x: number, y: number, size: number, rot?: number): void;
+	drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void;
   drawSquare(x: number, y: number, w: number, h: number, rot?: number): void;
   drawPentagon(x: number, y: number, size: number, rot?: number): void;
   drawHexagon(x: number, y: number, size: number, rot?: number): void;
@@ -30,7 +30,6 @@ export interface RenderEvent {
   drawPolygon(vertices: Array<Vector2>): void;
 
   // 3d
-  
 
 	draw(): void;
 }

@@ -100,8 +100,8 @@ export class Engine {
       drawLine: (a, b) => command_buffer.push(new DrawLineCommand(a, b)),
 
       drawCircle: (x, y, radius) => command_buffer.push(new DrawCircleCommand(x, y, radius)),
-      drawTriangle: (x, y, size, rot) =>
-        command_buffer.push(new DrawTriangleCommand(x, y, size, rot)),
+      drawTriangle: (x1, y1, x2, y2, x3, y3) =>
+        command_buffer.push(new DrawTriangleCommand(x1, y1, x2, y2, x3, y3)),
       drawSquare: (x, y, w, h) =>
         command_buffer.push(new DrawSquareCommand(x, y, w, h)),
       drawPentagon: (x, y, size, rot) =>

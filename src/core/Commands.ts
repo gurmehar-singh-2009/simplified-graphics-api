@@ -78,10 +78,12 @@ export class DrawTriangleCommand extends Command {
 	public readonly type = "draw_triangle" as const;
 
 	constructor(
-		public x: number,
-		public y: number,
-		public size: number,
-		public rot?: number,
+		public x1: number,
+		public y1: number,
+		public x2: number,
+		public y2: number,
+		public x3: number,
+		public y3: number
 	) {
 		super();
 	}
