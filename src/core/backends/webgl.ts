@@ -1,42 +1,50 @@
-import type { RenderConfigs, Backend } from "../Renderer";
+import type { Backend, RenderConfigs } from "../Renderer";
 
 export class WebGLBackend implements Backend {
   configs: RenderConfigs;
-  private ctx: WebGL2RenderingContext;
+  private ctx: RenderingContext;
 
-  private clearColor: string = "";
+	constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
+		this.configs = configs;
 
-  constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
-    this.configs = configs;
+		this.ctx = canvas.getContext("webgl2")!;
+	}
 
-    this.ctx = canvas.getContext("webgl2")!;
-  }
+	clear(): void {}
 
-  clear(): void {
-    
-  }
+	setColor(_r: number, _g: number, _b: number, _a: number): void {}
 
-  setColor(r: number, g: number, b: number, a: number): void {
-    
-  }
+	setClearColor(_r: number, _g: number, _b: number, _a: number): void {}
 
-  setClearColor(r: number, g: number, b: number, a: number): void {
-    
-  }
+	drawTriangle(_x: number, _y: number, _size: number, _rot?: number): void {}
 
-  drawTriangle(x: number, y: number, size: number, rot?: number): void {
-    
-  }
+	drawSquare(_x: number, _y: number, _w: number, _h: number): void {}
 
-  drawSquare(x: number, y: number, w: number, h: number): void {
-    
-  }
+	drawPentagon(_x: number, _y: number, _size: number, _rot?: number): void {}
 
-  drawRegularPolygon(x: number, y: number, size: number, sides: number, rot?: number): void {
-    
-  }
+	drawHexagon(_x: number, _y: number, _size: number, _rot?: number): void {}
 
-  drawPolygon(vertices: Array<[number, number]>): void {
-    
-  }
+	drawSeptagon(_x: number, _y: number, _size: number, _rot?: number): void {}
+
+	drawOctogon(_x: number, _y: number, _size: number, _rot?: number): void {}
+
+	drawCustomSides(
+		_x: number,
+		_y: number,
+		_size: number,
+		_sides: number,
+		_rot?: number,
+	): void {}
+
+	drawRegularPolygon(
+		_x: number,
+		_y: number,
+		_size: number,
+		_sides: number,
+		_rot?: number,
+	): void {}
+
+	drawPolygon(_vertices: Array<[number, number]>): void {}
+
+	present(): void {}
 }

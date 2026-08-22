@@ -16,25 +16,20 @@ export class ClearCommand extends Command {
 }
 
 export class SetColorCommand extends Command {
-  public readonly type = "set_color" as const;
+	public readonly type = "set_color" as const;
 
-  public r: number;
-  public g: number;
-  public b: number;
-  public a: number;
+	public r: number;
+	public g: number;
+	public b: number;
+	public a: number;
 
-	constructor(
-		r: number,
-		g: number,
-		b: number,
-		a: number,
-	) {
-    super();
+	constructor(r: number, g: number, b: number, a: number) {
+		super();
 
-    this.r = r;
-    this.g = g;
-    this.b = b;
-    this.a = a;
+		this.r = r;
+		this.g = g;
+		this.b = b;
+		this.a = a;
 	}
 }
 
@@ -83,7 +78,7 @@ export class DrawTriangleCommand extends Command {
 		public x2: number,
 		public y2: number,
 		public x3: number,
-		public y3: number
+		public y3: number,
 	) {
 		super();
 	}
@@ -160,7 +155,7 @@ export class DrawCustomSidePolygonCommand extends Command {
 	constructor(
 		public x: number,
 		public y: number,
-    public size: number,
+		public size: number,
 		public sides: number,
 		public rot?: number,
 	) {

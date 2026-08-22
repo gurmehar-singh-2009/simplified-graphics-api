@@ -1,8 +1,0 @@
-idea:
-
-drivers handle the specific underlying bs for each backend
-
-for example:
-- canvas driver just holds a bunch of arrays of objects and stuff and does stuff
-- webgpu driver allocates and manages memory buffers and stuff
-- webgl buffer does whatever webgl does (shaders?)
