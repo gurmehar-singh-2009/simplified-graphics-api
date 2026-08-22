@@ -3,6 +3,7 @@ import type { BackendDriver } from "./backends/drivers/driver";
 import {
   ClearCommand,
   type Command,
+  DrawCircleCommand,
   DrawCustomSidePolygonCommand,
   DrawHexagonCommand,
   DrawLineCommand,
@@ -40,6 +41,17 @@ export class Engine {
       case Backends.WEBGPU:
         throw new Error("buddy no webgpu yet!");
     }
+
+    // handle anti aliasing
+    canvas.width =
+      document.documentElement.clientWidth * (configs.antialias ? 4 : 1);
+    canvas.height =
+      document.documentElement.clientHeight * (configs.antialias ? 4 : 1);
+
+    canvas.style.width = `${document.documentElement.clientWidth}px`;
+    canvas.style.height = `${document.documentElement.clientHeight}px`;
+
+    if (configs.antialias) canvas.getContext("2d")?.scale(4, 4);
   }
 
   public start(): void {
@@ -87,6 +99,7 @@ export class Engine {
         command_buffer.push(new SetClearCommand(r, g, b, a)),
       drawLine: (a, b) => command_buffer.push(new DrawLineCommand(a, b)),
 
+      drawCircle: (x, y, radius) => command_buffer.push(new DrawCircleCommand(x, y, radius)),
       drawTriangle: (x1, y1, x2, y2, x3, y3) =>
         command_buffer.push(new DrawTriangleCommand(x1, y1, x2, y2, x3, y3)),
       drawSquare: (x, y, w, h) =>

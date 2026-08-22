@@ -62,6 +62,18 @@ export class DrawLineCommand extends Command {
 	}
 }
 
+export class DrawCircleCommand extends Command {
+	public readonly type = "draw_circle" as const;
+
+	constructor(
+		public x: number,
+		public y: number,
+		public radius: number,
+	) {
+		super();
+	}
+}
+
 export class DrawTriangleCommand extends Command {
 	public readonly type = "draw_triangle" as const;
 

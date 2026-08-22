@@ -29,6 +29,12 @@ export class CanvasBackend implements Backend {
     this.clearColor = `rgba(${r}, ${g}, ${b}, ${a})`;
   }
 
+  drawCircle(x: number, y: number, radius: number): void {
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+    this.ctx.fill();
+  }
+  
   drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
     this.ctx.beginPath();
     this.ctx.moveTo(x1, y1);
