@@ -6,7 +6,7 @@ document.body.appendChild(canvas);
 
 const engine = new Engine(canvas, {
   backend: Backends.CANVAS,
-  antialias: false,
+  antialias: true,
 });
 
 console.log(engine)

@@ -43,6 +43,10 @@ export class CanvasDriver implements BackendDriver {
           this.backend?.setColor(cmd.r, cmd.g, cmd.b, cmd.a);
           break;
 
+        case "draw_circle":
+          this.backend?.drawCircle(cmd.x, cmd.y, cmd.radius);
+          break;
+
         case "draw_triangle":
           this.backend?.drawTriangle(cmd.x, cmd.y, cmd.size, cmd.rot);
           break;
