@@ -1,37 +1,48 @@
 import type * as Cmds from "../../Commands";
 import type { Command } from "../../Commands";
-import type { Texture } from "../../Renderer";
+import type { RenderConfigs, Texture } from "../../Renderer";
+import { CanvasBackend } from "../canvas";
 import type { BackendDriver } from "./driver";
 
-type EngineCommand = InstanceType<(typeof Cmds)[keyof typeof Cmds]>;
+type CommandClassKey = Exclude<keyof typeof Cmds, "Command">;
+type EngineCommand = InstanceType<(typeof Cmds)[CommandClassKey]>;
 
 export class CanvasDriver implements BackendDriver {
-	private ctx: CanvasRenderingContext2D | null = null;
+  private ctx: CanvasRenderingContext2D | null = null;
 
-	init(canvas: HTMLCanvasElement): void {
-		this.ctx = canvas.getContext("2d");
-	}
+  private backend: CanvasBackend | null = null;
 
-	processFrame(commands: Array<Command>): void {
-		if (!this.ctx) return;
-		for (const c of commands) {
-			const cmd = c as EngineCommand;
+  private clearColor: Array<number> = [255, 0, 0, 1];
 
-			switch (cmd.type) {
-				case "clear":
-					this.ctx.clearRect(
-						0,
-						0,
-						this.ctx.canvas.width,
-						this.ctx.canvas.height,
-					);
-					break;
+  init(canvas: HTMLCanvasElement, configs: RenderConfigs): void {
+    this.ctx = canvas.getContext("2d");
 
-				case "set_clear":
-					break;
-			}
-		}
-	}
+    this.backend = new CanvasBackend(canvas, configs);
+  }
 
-	loadTexture(_texture: Texture): void {}
+  processFrame(commands: Array<Command>): void {
+    console.error("processing frame", commands);
+    if (!this.ctx) return;
+
+    for (const c of commands) {
+      const cmd = c as EngineCommand;
+
+      console.warn(cmd);
+
+      switch (cmd.type) {
+        case "clear": {
+          const [r, g, b, a] = this.clearColor;
+          this.backend!.clear(r!, g!, b!, a!);
+
+          break;
+        }
+
+        case "set_clear":
+          this.backend!.setColor(cmd.r, cmd.g, cmd.b, cmd.a);
+          break;
+      }
+    }
+  }
+
+  loadTexture(_texture: Texture): void {}
 }

@@ -1,8 +1,8 @@
 import type { Command } from "../../Commands";
-import type { Texture } from "../../Renderer";
+import type { RenderConfigs, Texture } from "../../Renderer";
 
 export interface BackendDriver {
-	init(canvas: HTMLCanvasElement): void;
+  init(canvas: HTMLCanvasElement, configs: RenderConfigs): void;
 	processFrame(commands: Array<Command>): void;
 	loadTexture(texture: Texture): void;
 }

@@ -14,7 +14,7 @@ export enum Backends {
 export interface RenderConfigs {
 	backend: Backends;
 	antialias: boolean;
-	default(): RenderConfigs;
+	// default(): RenderConfigs;
 }
 
 export interface Texture {
@@ -22,9 +22,11 @@ export interface Texture {
 	source: HTMLImageElement | ImageBitmap;
 }
 
-export interface Renderer {
+export interface Backend {
 	configs: RenderConfigs;
 
-	start(): void;
-	onRender(): void;
+	clear(r: number, g: number, b: number, a: number): void;
+  drawSquare(x: number, y: number, w: number, h: number): void;
+
+  setColor(r: number, g: number, b: number, a: number): void;
 }

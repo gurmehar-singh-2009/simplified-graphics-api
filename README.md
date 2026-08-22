@@ -7,6 +7,12 @@
     <sub>Developed at Centennial Collegiate Vocational Institute.</sub>
 </p>
 
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6.svg?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
+![Code Size](https://img.shields.io/github/languages/code-size/gurmehar-singh-2009/araria?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-Web-lightgrey?style=flat-square)
+
 </div>
 
 ---

@@ -5,6 +5,8 @@
 import type { Vector2 } from "../math/Vector2";
 
 // i also dont know if this is worth it: returning true/false if the operation failed/succeeded
+// 
+// essentially, this is what they get as the callback param to do stuff with
 export interface RenderEvent {
 	clear(): void;
 

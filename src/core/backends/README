@@ -1,0 +1,23 @@
+distinction between backends and drivers:
+
+made this distinction so working with webgl/webgpu would be easier
+backends provide higher level abstractions that the driver then uses to map our commands to whatever they should do
+
+
+walkthrough:
+
+user wants to draw a rect at 0, 0 with w: 2, h: 2
+user does a command (eg. e.clearRect(0, 0, 2, 2))
+
+our driver handles that command and calls the abstracted layer provided by our backends
+for example:
+backend.utilizeClearColor()
+backend.clearScreen()
+
+(bad example, but this could be very useful if things become complicated)
+
+then the backend does ALL of the messy work
+eg.
+
+this.ctx.fillStyle = this.clearColor;
+this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);

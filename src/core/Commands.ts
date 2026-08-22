@@ -12,24 +12,34 @@ export abstract class Command {
 // COMMANDS
 
 export class ClearCommand extends Command {
-	public readonly type = "clear";
+	public readonly type = "clear" as const;
 }
 
 export class SetColorCommand extends Command {
-	public readonly type = "set_color";
+  public readonly type = "set_color" as const;
+
+  public r: number;
+  public g: number;
+  public b: number;
+  public a: number;
 
 	constructor(
-		public r: number,
-		public g: number,
-		public b: number,
-		public a: number,
+		r: number,
+		g: number,
+		b: number,
+		a: number,
 	) {
-		super();
+    super();
+
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
 	}
 }
 
 export class SetClearCommand extends Command {
-	public readonly type = "set_clear";
+	public readonly type = "set_clear" as const;
 
 	constructor(
 		public r: number,
@@ -42,7 +52,7 @@ export class SetClearCommand extends Command {
 }
 
 export class DrawLineCommand extends Command {
-	public readonly type = "draw_line";
+	public readonly type = "draw_line" as const;
 
 	constructor(
 		public a: Vector2,
@@ -53,7 +63,7 @@ export class DrawLineCommand extends Command {
 }
 
 export class DrawSquareCommand extends Command {
-	public readonly type = "draw_square";
+	public readonly type = "draw_square" as const;
 
 	constructor(
 		public x: number,
@@ -66,7 +76,7 @@ export class DrawSquareCommand extends Command {
 }
 
 export class DrawPolygonCommand extends Command {
-	public readonly type = "draw_polygon";
+	public readonly type = "draw_polygon" as const;
 
 	constructor([..._entities]) {
 		super();

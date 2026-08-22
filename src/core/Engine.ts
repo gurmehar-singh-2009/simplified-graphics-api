@@ -38,7 +38,9 @@ export class Engine {
 
 	public start(): void {
 		if (this.active) return;
-		this.active = true;
+    this.active = true;
+
+    this.backendDriver.init(this.canvas, this.configs);
 
 		const loop = () => {
 			if (!this.active) return;
@@ -67,7 +69,6 @@ export class Engine {
 	}
 
 	private createRenderEvent(): RenderEvent {
-		const _currentColor = { r: 255, g: 255, b: 255, a: 1 };
 		const command_buffer: Array<Command> = [];
 
 		return {
