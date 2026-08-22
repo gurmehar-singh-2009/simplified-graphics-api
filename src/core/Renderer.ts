@@ -25,11 +25,13 @@ export interface Texture {
 export interface Backend {
 	configs: RenderConfigs;
 
-  clear(r: number, g: number, b: number, a: number): void;
-  setColor(r: number, g: number, b: number, a: number): void;
+	clear(): void;
+	setColor(r: number, g: number, b: number, a: number): void;
+	setClearColor(r: number, g: number, b: number, a: number): void;
 
-  drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void;
-  drawSquare(x: number, y: number, w: number, h: number, rot?: number): void;
-  drawRegularPolygon(x: number, y: number, size: number, sides: number, rot?: number): void;
-  drawPolygon(vertices: Array<[number, number]>): void;
+	drawCircle(x: number, y: number, radius: number): void;
+	drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void;
+	drawSquare(x: number, y: number, w: number, h: number, rot?: number): void;
+	drawRegularPolygon(x: number, y: number, size: number, sides: number, rot?: number): void;
+	drawPolygon(vertices: Array<[number, number]>): void;
 }

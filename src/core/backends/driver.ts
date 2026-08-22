@@ -1,28 +1,33 @@
-import type * as Cmds from "../../Commands";
-import type { Command } from "../../Commands";
-import type { RenderConfigs, Texture } from "../../Renderer";
-import { CanvasBackend } from "../canvas";
-import type { BackendDriver } from "./driver";
+import type * as Cmds from "../Commands";
+import type { Command } from "../Commands";
+import { Backends, type Backend, type RenderConfigs, type Texture } from "../Renderer";
+import { CanvasBackend } from "./canvas";
+import { WebGLBackend } from "./webgl";
+import { WebGPUBackend } from "./webgpu";
 
 type CommandClassKey = Exclude<keyof typeof Cmds, "Command">;
 type EngineCommand = InstanceType<(typeof Cmds)[CommandClassKey]>;
 
-export class CanvasDriver implements BackendDriver {
-  private ctx: CanvasRenderingContext2D | null = null;
-
-  private backend: CanvasBackend | null = null;
+export class Driver {
+  private backend: Backend | null = null;
 
   private clearColor: Array<number> = [255, 255, 255, 1];
 
   init(canvas: HTMLCanvasElement, configs: RenderConfigs): void {
-    this.ctx = canvas.getContext("2d");
-
-    this.backend = new CanvasBackend(canvas, configs);
+    switch(configs.backend) {
+      case Backends.CANVAS:
+        this.backend = new CanvasBackend(canvas, configs);
+        break;
+      case Backends.WEBGL:
+        this.backend = new WebGLBackend(canvas, configs);
+        break;
+      case Backends.WEBGPU:
+        this.backend = new WebGPUBackend(canvas, configs);
+        break;
+    }
   }
 
   processFrame(commands: Array<Command>): void {
-    if (!this.ctx) return;
-
     for (const c of commands) {
       const cmd = c as EngineCommand;
 
