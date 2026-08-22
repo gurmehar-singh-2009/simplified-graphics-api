@@ -1,5 +1,4 @@
-import { CanvasDriver } from "./backends/drivers/canvas_driver";
-import type { BackendDriver } from "./backends/drivers/driver";
+import { Driver } from "./backends/driver";
 import {
   ClearCommand,
   type Command,
@@ -21,7 +20,7 @@ import { Backends, type RenderConfigs, type Texture } from "./Renderer";
 
 export class Engine {
   private configs: RenderConfigs;
-  private backendDriver!: BackendDriver;
+  private backendDriver!: Driver;
   private textures: Map<string, Texture> = new Map();
   private active = false;
   private canvas: HTMLCanvasElement;
@@ -34,7 +33,7 @@ export class Engine {
 
     switch (this.configs.backend) {
       case Backends.CANVAS:
-        this.backendDriver = new CanvasDriver();
+        this.backendDriver = new Driver();
         break;
       case Backends.WEBGL:
         break;

@@ -13,30 +13,34 @@ export class WebGLBackend implements Backend {
   }
 
   clear(): void {
-    
+
   }
 
   setColor(r: number, g: number, b: number, a: number): void {
-    
+
+  }
+
+  drawCircle(x: number, y: number, radius: number): void {
+
   }
 
   setClearColor(r: number, g: number, b: number, a: number): void {
-    
+
   }
 
   drawTriangle(x: number, y: number, size: number, rot?: number): void {
-    
+
   }
 
   drawSquare(x: number, y: number, w: number, h: number): void {
-    
+
   }
 
   drawRegularPolygon(x: number, y: number, size: number, sides: number, rot?: number): void {
-    
+
   }
 
   drawPolygon(vertices: Array<[number, number]>): void {
-    
+
   }
 }
