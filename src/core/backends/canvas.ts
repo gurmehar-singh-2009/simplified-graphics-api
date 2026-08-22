@@ -29,18 +29,12 @@ export class CanvasBackend implements Backend {
     this.clearColor = `rgba(${r}, ${g}, ${b}, ${a})`;
   }
 
-  drawTriangle(x: number, y: number, size: number, rot?: number): void {
-    rot = rot || 0.
-
+  drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
     this.ctx.beginPath();
-    for (let i = rot; i < Math.PI * 2 + rot; i += Math.PI * 2 / 3) {
-      const coordinate = {
-        x: x + size * Math.cos(i),
-        y: y + size * Math.sin(i),
-      };
-
-      this.ctx[i === rot ? "moveTo" : "lineTo"](coordinate.x, coordinate.y);
-    }
+    this.ctx.moveTo(x1, y1);
+    this.ctx.lineTo(x2, y2);
+    this.ctx.lineTo(x3, y3);
+    this.ctx.lineTo(x1, y1);
     this.ctx.closePath();
     this.ctx.fill();
   }
@@ -49,71 +43,7 @@ export class CanvasBackend implements Backend {
     this.ctx.fillRect(x, y, w, h);
   }
 
-  drawPentagon(x: number, y: number, size: number, rot?: number): void {
-    rot = rot || 0.
-
-    this.ctx.beginPath();
-    for (let i = rot; i < Math.PI * 2 + rot; i += Math.PI * 2 / 5) {
-      const coordinate = {
-        x: x + size * Math.cos(i),
-        y: y + size * Math.sin(i),
-      };
-
-      this.ctx[i === rot ? "moveTo" : "lineTo"](coordinate.x, coordinate.y);
-    }
-    this.ctx.closePath();
-    this.ctx.fill();
-  }
-
-  drawHexagon(x: number, y: number, size: number, rot?: number): void {
-    rot = rot || 0.
-
-    this.ctx.beginPath();
-    for (let i = rot; i < Math.PI * 2 + rot; i += Math.PI * 2 / 6) {
-      const coordinate = {
-        x: x + size * Math.cos(i),
-        y: y + size * Math.sin(i),
-      };
-
-      this.ctx[i === rot ? "moveTo" : "lineTo"](coordinate.x, coordinate.y);
-    }
-    this.ctx.closePath();
-    this.ctx.fill();
-  }
-
-  drawSeptagon(x: number, y: number, size: number, rot?: number): void {
-    rot = rot || 0.
-
-    this.ctx.beginPath();
-    for (let i = rot; i < Math.PI * 2 + rot; i += Math.PI * 2 / 7) {
-      const coordinate = {
-        x: x + size * Math.cos(i),
-        y: y + size * Math.sin(i),
-      };
-
-      this.ctx[i === rot ? "moveTo" : "lineTo"](coordinate.x, coordinate.y);
-    }
-    this.ctx.closePath();
-    this.ctx.fill();
-  }
-
-  drawOctogon(x: number, y: number, size: number, rot?: number): void {
-    rot = rot || 0.
-
-    this.ctx.beginPath();
-    for (let i = rot; i < Math.PI * 2 + rot; i += Math.PI * 2 / 8) {
-      const coordinate = {
-        x: x + size * Math.cos(i),
-        y: y + size * Math.sin(i),
-      };
-
-      this.ctx[i === rot ? "moveTo" : "lineTo"](coordinate.x, coordinate.y);
-    }
-    this.ctx.closePath();
-    this.ctx.fill();
-  }
-
-  drawCustomSides(x: number, y: number, size: number, sides: number, rot?: number): void {
+  drawRegularPolygon(x: number, y: number, size: number, sides: number, rot?: number): void {
     rot = rot || 0.
 
     this.ctx.beginPath();

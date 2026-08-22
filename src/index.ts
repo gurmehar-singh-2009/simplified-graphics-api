@@ -20,7 +20,7 @@ engine.onRender = (e) => {
   e.drawSquare(40, 40, 20, 20);
 
   e.set2DColor(0, 255, 0, 1);
-  e.drawTriangle(80, 100, 35);
+  e.drawTriangle(80, 80, 100, 100, 0, 100);
 
   e.set2DColor(0, 0, 255, 1);
   e.drawOctogon(180, 60, 25);

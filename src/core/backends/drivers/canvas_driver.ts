@@ -44,7 +44,7 @@ export class CanvasDriver implements BackendDriver {
           break;
 
         case "draw_triangle":
-          this.backend?.drawTriangle(cmd.x, cmd.y, cmd.size, cmd.rot);
+          this.backend?.drawTriangle(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x3, cmd.y3);
           break;
 
         case "draw_square":
@@ -52,23 +52,23 @@ export class CanvasDriver implements BackendDriver {
           break;
 
         case "draw_pentagon":
-          this.backend?.drawPentagon(cmd.x, cmd.y, cmd.size, cmd.rot);
+          this.backend?.drawRegularPolygon(cmd.x, cmd.y, cmd.size, 5, cmd.rot);
           break;
 
         case "draw_hexagon":
-          this.backend?.drawHexagon(cmd.x, cmd.y, cmd.size, cmd.rot);
+          this.backend?.drawRegularPolygon(cmd.x, cmd.y, cmd.size, 6, cmd.rot);
           break;
 
         case "draw_septagon":
-          this.backend?.drawSeptagon(cmd.x, cmd.y, cmd.size, cmd.rot);
+          this.backend?.drawRegularPolygon(cmd.x, cmd.y, cmd.size, 7, cmd.rot);
           break;
 
         case "draw_octogon":
-          this.backend?.drawOctogon(cmd.x, cmd.y, cmd.size, cmd.rot);
+          this.backend?.drawRegularPolygon(cmd.x, cmd.y, cmd.size, 8, cmd.rot);
           break;
 
         case "draw_custom_side_polygon":
-          this.backend?.drawCustomSides(
+          this.backend?.drawRegularPolygon(
             cmd.x,
             cmd.y,
             cmd.size,
