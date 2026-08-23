@@ -8,6 +8,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100vw;
+            height: 100vh;
         }
         </style>
     </head>
@@ -91,10 +97,9 @@
                 renderPos.x = lerp(renderPos.x, player.x, SMOOTHING);
                 renderPos.y = lerp(renderPos.y, player.y, SMOOTHING);
 
-                e.clear();
+                e.clear(0, 0, 0, 1);
                 e.set2DColor(255, 0, 0, 1);
                 e.drawSquare(renderPos.x, renderPos.y, 25, 25);
-                e.draw();
             };
         </script>
     </body>
