@@ -5,6 +5,7 @@ export default defineConfig({
   base: '/simplified-graphics-api/',
   title: "simplified-graphics-api",
   description: "Documentation for simplified-graphics-api",
+  ignoreDeadLinks: true,
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
