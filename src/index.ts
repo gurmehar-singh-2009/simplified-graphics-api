@@ -14,7 +14,7 @@ console.log(engine)
 engine.start();
 
 engine.onRender = (e) => {
-  e.clear();
+  e.clear(255, 0, 0, 1);
 
   e.set2DColor(255, 0, 0, 1);
   e.drawSquare(40, 40, 20, 20);

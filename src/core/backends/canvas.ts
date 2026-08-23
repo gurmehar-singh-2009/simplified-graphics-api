@@ -3,12 +3,11 @@
 // because they all vary so much (canvas2d can just be a bunch of arrays, while webgpu needs actual buffer allocation and resizing)
 
 import type { RenderConfigs, Backend } from "../Renderer";
+import { Commands } from "../Commands";
 
 export class CanvasBackend implements Backend {
   configs: RenderConfigs;
   private ctx: CanvasRenderingContext2D;
-
-  private clearColor: string = "rgba(0, 0, 0, 0)";
 
   constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
     this.configs = configs;
@@ -16,19 +15,15 @@ export class CanvasBackend implements Backend {
     this.ctx = canvas.getContext("2d")!;
   }
 
-  clear(): void {
-    this.ctx.fillStyle = this.clearColor;
+  clear(r: number, g: number, b: number, a: number): void {
+    this.ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
     this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
 
   setColor(r: number, g: number, b: number, a: number): void {
     this.ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
   }
-
-  setClearColor(r: number, g: number, b: number, a: number): void {
-    this.clearColor = `rgba(${r}, ${g}, ${b}, ${a})`;
-  }
-
+  
   drawLine(x1: number, y1: number, x2: number, y2: number, thickness: number): void {
     this.ctx.lineWidth = thickness;
     this.ctx.beginPath();
@@ -43,7 +38,7 @@ export class CanvasBackend implements Backend {
     this.ctx.arc(x, y, radius, 0, Math.PI * 2);
     this.ctx.fill();
   }
-  
+
   drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
     this.ctx.beginPath();
     this.ctx.moveTo(x1, y1);
@@ -82,5 +77,95 @@ export class CanvasBackend implements Backend {
     }
     this.ctx.closePath();
     this.ctx.fill();
+  }
+
+
+  // Put this method here and not a base Backend class since we might want to process the command buffer differently in each backend.
+  // Having the command buffer here provides lots of flexibility but for now it is the same code in all three backends.
+  public processFrame(data: Float32Array, length: number): void {
+    const driver = this as Backend;
+    let i = 0;
+
+    while (i < length) {
+      const opcode = data[i++] as Commands;
+
+      switch (opcode) {
+        case Commands.Clear: {
+          if (!driver.clear) {
+            throw new Error("Active backend does not implement 'clear()'.");
+          }
+          driver.clear(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
+          break;
+        }
+
+        case Commands.Set2DColor:
+        case Commands.Set3DColor: {
+          if (!driver.setColor) {
+            throw new Error("Active backend does not implement 'setColor()'.");
+          }
+          driver.setColor(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
+          break;
+        }
+
+        case Commands.DrawLine: {
+          if (!driver.drawLine) {
+            throw new Error("Active backend does not implement 'drawLine()'.");
+          }
+          driver.drawLine(data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!);
+          break;
+        }
+
+        case Commands.DrawCircle: {
+          if (!driver.drawCircle) {
+            throw new Error("Active backend does not implement 'drawCircle()'.");
+          }
+          driver.drawCircle(data[i++]!, data[i++]!, data[i++]!);
+          break;
+        }
+
+        case Commands.DrawSquare: {
+          if (!driver.drawSquare) {
+            throw new Error("Active backend does not implement 'drawSquare()'.");
+          }
+          driver.drawSquare(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
+          break;
+        }
+
+        case Commands.DrawTriangle: {
+          if (!driver.drawTriangle) {
+            throw new Error("Active backend does not implement 'drawTriangle()'.");
+          }
+          driver.drawTriangle(
+            data[i++]!, data[i++]!,
+            data[i++]!, data[i++]!,
+            data[i++]!, data[i++]!
+          );
+          break;
+        }
+
+        case Commands.DrawRegularPolygon: {
+          if (!driver.drawRegularPolygon) {
+            throw new Error("Active backend does not implement 'drawRegularPolygon()'.");
+          }
+          driver.drawRegularPolygon(
+            data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!
+          );
+          break;
+        }
+
+        case Commands.DrawPolygon: {
+          if (!driver.drawPolygon) {
+            throw new Error("Active backend does not implement 'drawPolygon()'.");
+          }
+          const vertCount = data[i++]!;
+          const vertices: Array<[number, number]> = [];
+          for (let v = 0; v < vertCount; v++) {
+            vertices.push([data[i++]!, data[i++]!]);
+          }
+          driver.drawPolygon(vertices);
+          break;
+        }
+      }
+    }
   }
 }
