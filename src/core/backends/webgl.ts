@@ -11,9 +11,7 @@ export class WebGLBackend implements Backend {
 		this.ctx = canvas.getContext("webgl2")!;
 	}
 
-	clear(): void {}
-
-  clear(): void {
+	clear(r: number, g: number, b: number, a: number): void {
 
   }
 

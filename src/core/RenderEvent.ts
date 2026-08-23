@@ -70,9 +70,4 @@ export class RenderEvent {
   public drawPolygon(vertices: Array<Vector2>): void {
     this.commandBuffer.drawPolygon(vertices);
   }
-
-  public draw() {
-    this.commandBuffer.send();
-    // here?
-  }
 }

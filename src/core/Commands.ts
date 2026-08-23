@@ -66,7 +66,7 @@ export class CommandBuffer {
 	}
 
 	public drawLine(p1: Vector2, p2: Vector2, thickness: number): void {
-		this.ensureCapacity(5);
+		this.ensureCapacity(6);
 		this.data[this.length++] = Commands.DrawLine;
 		this.data[this.length++] = p1.x;
 		this.data[this.length++] = p1.y;
@@ -93,7 +93,7 @@ export class CommandBuffer {
 	}
 
 	public drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
-		this.ensureCapacity(5);
+		this.ensureCapacity(7);
 		this.data[this.length++] = Commands.DrawTriangle;
 		this.data[this.length++] = x1;
 		this.data[this.length++] = y1;
@@ -128,9 +128,5 @@ export class CommandBuffer {
 				this.data[this.length++] = pt.y;
 			}
 		}
-	}
-
-	public send() {
-		
 	}
 }
