@@ -35,6 +35,8 @@
 | Low | WebGL/WebGPU tutorial | Planned |
 | Low | Multiplayer network support | Planned |
 | Low | Debug panel | Planned |
+| Low | Audio | Discussion |
+| Low | Input Handling | Discussion |
 
 
 ## Shortcut list (cmds)

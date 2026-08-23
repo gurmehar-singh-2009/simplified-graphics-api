@@ -1,4 +1,4 @@
-import type { Vector2 } from "../math/Vector2";
+import type { Vector2 } from "../math/vector2";
 
 // Only the most essential commands are implemented in backend.
 // Other user facing methods like drawPentagon are handled in RenderEvent.
@@ -12,7 +12,7 @@ export enum Commands {
 	DrawTriangle,
 	DrawRegularPolygon,
 	DrawPolygon,
-	Draw
+	Draw,
 }
 
 export class CommandBuffer {
@@ -81,7 +81,14 @@ export class CommandBuffer {
 		this.data[this.length++] = h;
 	}
 
-	public drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
+	public drawTriangle(
+		x1: number,
+		y1: number,
+		x2: number,
+		y2: number,
+		x3: number,
+		y3: number,
+	): void {
 		this.ensureCapacity(7);
 		this.data[this.length++] = Commands.DrawTriangle;
 		this.data[this.length++] = x1;
@@ -92,7 +99,13 @@ export class CommandBuffer {
 		this.data[this.length++] = y3;
 	}
 
-	public drawRegularPolygon(x: number, y: number, size: number, sides: number, rot = 0): void {
+	public drawRegularPolygon(
+		x: number,
+		y: number,
+		size: number,
+		sides: number,
+		rot = 0,
+	): void {
 		this.ensureCapacity(6);
 		this.data[this.length++] = Commands.DrawRegularPolygon;
 		this.data[this.length++] = x;

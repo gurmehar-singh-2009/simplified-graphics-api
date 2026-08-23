@@ -2,12 +2,12 @@
 	"compilerOptions": {
 		// Environment setup & latest features
 		"lib": ["DOM", "DOM.Iterable", "ES2022"],
-		"target": "ES2022",
+		"target": "es6",
 		"module": "Preserve",
 		"moduleDetection": "force",
 		"jsx": "react-jsx",
 		"allowJs": true,
-		"types": ["@webgpu/types"],
+		"types": ["bun", "@webgpu/types"],
 
 		// Bundler mode
 		"moduleResolution": "bundler",

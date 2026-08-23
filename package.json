@@ -13,7 +13,6 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.10",
-		"@types/bun": "latest",
 		"@webgpu/types": "^0.1.72",
 		"typedoc": "^0.28.20"
 	},

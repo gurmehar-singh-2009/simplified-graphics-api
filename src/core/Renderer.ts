@@ -20,7 +20,13 @@ export interface Texture {
 export interface Backend {
 	clear?(r: number, g: number, b: number, a: number): void;
 	setColor?(r: number, g: number, b: number, a: number): void;
-	drawLine?(x1: number, y1: number, x2: number, y2: number, thickness: number): void;
+	drawLine?(
+		x1: number,
+		y1: number,
+		x2: number,
+		y2: number,
+		thickness: number,
+	): void;
 	drawTriangle?(
 		x1: number,
 		y1: number,

@@ -1,12 +1,6 @@
-// SUMMMARY of what this is supposed to do so i dont forget for like 3 hours and have to reread all my code again
-//
-//
-//
-//
-// read nara.io source code on the workspace in the right, its basically that
-// but transpiled to ts
-//
-
+/**
+ * Entity Instance. What we send to the GPU.
+ */
 export class EntityInstance {
 	public position: [number, number];
 	public size: [number, number];
@@ -28,7 +22,7 @@ export class EntityInstance {
 	 */
 	public sides: number;
 
-	public fill_style: [number, number, number, number];
+  public fill_style: [number, number, number, number];
 	public border_color: [number, number, number, number];
 	public border_thickness: number;
 

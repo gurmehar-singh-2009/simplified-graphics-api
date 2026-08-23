@@ -1,4 +1,4 @@
-import type { Vector2 } from "../math/Vector2";
+import type { Vector2 } from "../math/vector2";
 import { Entity } from "./Entity";
 
 export class LineEntity extends Entity {

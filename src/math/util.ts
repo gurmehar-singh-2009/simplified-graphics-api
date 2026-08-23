@@ -1,7 +1,7 @@
 // couldnt think of a nice name
 
-import { Vector2 } from "./Vector2";
-import type { Vector3 } from "./Vector3";
+import { Vector2 } from "./vector2";
+import type { Vector3 } from "./vector3";
 
 // basically converts regular top-left zero coordinates into [-1, 1] coordinate system
 export function transform2DtoNormalizedCoordinates(_coord: Vector2) {}
