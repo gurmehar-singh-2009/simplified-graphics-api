@@ -34,6 +34,7 @@
 | Medium | Entities Support built in | Planned |
 | Low | WebGL/WebGPU tutorial | Planned |
 | Low | Multiplayer network support | Planned |
+| Low | Debug panel | Planned |
 
 
 ## Shortcut list (cmds)
