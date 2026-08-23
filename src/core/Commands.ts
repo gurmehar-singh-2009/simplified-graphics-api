@@ -1,172 +1,136 @@
-// MAYBE im overcomplicating this
-// this will contain a bunch of "commands" we send to our drivers
-// these commands will be backend-independent, and are handled individually by each backend
-//
-
 import type { Vector2 } from "../math/Vector2";
 
-export abstract class Command {
-	public abstract readonly type: string;
+// Only the most essential commands are implemented in backend.
+// Other user facing methods like drawPentagon are handle in RenderEvent.
+// 
+
+export enum Commands {
+	Clear,
+	Set2DColor,
+	Set3DColor,
+	DrawLine,
+	DrawCircle,
+	DrawSquare,
+	DrawTriangle,
+	DrawRegularPolygon,
+	DrawPolygon,
+	Draw
 }
 
-// COMMANDS
+export class CommandBuffer {
+	public data: Float32Array;
+	public length: number;
 
-export class ClearCommand extends Command {
-	public readonly type = "clear" as const;
-}
-
-export class SetColorCommand extends Command {
-	public readonly type = "set_color" as const;
-
-	public r: number;
-	public g: number;
-	public b: number;
-	public a: number;
-
-	constructor(r: number, g: number, b: number, a: number) {
-		super();
-
-		this.r = r;
-		this.g = g;
-		this.b = b;
-		this.a = a;
+	constructor(initialCapacity = 100_000) {
+		this.data = new Float32Array(initialCapacity);
+		this.length = 0;
 	}
-}
 
-export class SetClearCommand extends Command {
-	public readonly type = "set_clear" as const;
-
-	constructor(
-		public r: number,
-		public g: number,
-		public b: number,
-		public a: number,
-	) {
-		super();
+	public reset(): void {
+		this.length = 0;
 	}
-}
 
-export class DrawLineCommand extends Command {
-	public readonly type = "draw_line" as const;
-
-	constructor(
-		public a: Vector2,
-		public b: Vector2,
-	) {
-		super();
+	private ensureCapacity(neededSlots: number): void {
+		if (this.length + neededSlots > this.data.length) {
+			const resized = new Float32Array(this.data.length * 2);
+			resized.set(this.data);
+			this.data = resized;
+		}
 	}
-}
 
-export class DrawCircleCommand extends Command {
-	public readonly type = "draw_circle" as const;
-
-	constructor(
-		public x: number,
-		public y: number,
-		public radius: number,
-	) {
-		super();
+	public clear(r: number, g: number, b: number, a: number): void {
+		this.ensureCapacity(5);
+		this.data[this.length++] = Commands.Clear;
+		this.data[this.length++] = r;
+		this.data[this.length++] = g;
+		this.data[this.length++] = b;
+		this.data[this.length++] = a;
 	}
-}
 
-export class DrawTriangleCommand extends Command {
-	public readonly type = "draw_triangle" as const;
-
-	constructor(
-		public x1: number,
-		public y1: number,
-		public x2: number,
-		public y2: number,
-		public x3: number,
-		public y3: number,
-	) {
-		super();
+	public set2DColor(r: number, g: number, b: number, a: number): void {
+		this.ensureCapacity(5);
+		this.data[this.length++] = Commands.Set2DColor;
+		this.data[this.length++] = r;
+		this.data[this.length++] = g;
+		this.data[this.length++] = b;
+		this.data[this.length++] = a;
 	}
-}
 
-export class DrawSquareCommand extends Command {
-	public readonly type = "draw_square" as const;
-
-	constructor(
-		public x: number,
-		public y: number,
-		public w: number,
-		public h: number,
-	) {
-		super();
+	public set3DColor(r: number, g: number, b: number, a: number): void {
+		this.ensureCapacity(5);
+		this.data[this.length++] = Commands.Set3DColor;
+		this.data[this.length++] = r;
+		this.data[this.length++] = g;
+		this.data[this.length++] = b;
+		this.data[this.length++] = a;
 	}
-}
 
-export class DrawPentagonCommand extends Command {
-	public readonly type = "draw_pentagon" as const;
-
-	constructor(
-		public x: number,
-		public y: number,
-		public size: number,
-		public rot?: number,
-	) {
-		super();
+	public drawLine(p1: Vector2, p2: Vector2, thickness: number): void {
+		this.ensureCapacity(5);
+		this.data[this.length++] = Commands.DrawLine;
+		this.data[this.length++] = p1.x;
+		this.data[this.length++] = p1.y;
+		this.data[this.length++] = p2.x;
+		this.data[this.length++] = p2.y;
+		this.data[this.length++] = thickness;
 	}
-}
 
-export class DrawHexagonCommand extends Command {
-	public readonly type = "draw_hexagon" as const;
-
-	constructor(
-		public x: number,
-		public y: number,
-		public size: number,
-		public rot?: number,
-	) {
-		super();
+	public drawCircle(x: number, y: number, radius: number): void {
+		this.ensureCapacity(4);
+		this.data[this.length++] = Commands.DrawCircle;
+		this.data[this.length++] = x;
+		this.data[this.length++] = y;
+		this.data[this.length++] = radius;
 	}
-}
 
-export class DrawSeptagonCommand extends Command {
-	public readonly type = "draw_septagon" as const;
-
-	constructor(
-		public x: number,
-		public y: number,
-		public size: number,
-		public rot?: number,
-	) {
-		super();
+	public drawSquare(x: number, y: number, w: number, h: number): void {
+		this.ensureCapacity(5);
+		this.data[this.length++] = Commands.DrawSquare;
+		this.data[this.length++] = x;
+		this.data[this.length++] = y;
+		this.data[this.length++] = w;
+		this.data[this.length++] = h;
 	}
-}
 
-export class DrawOctogonCommand extends Command {
-	public readonly type = "draw_octogon" as const;
-
-	constructor(
-		public x: number,
-		public y: number,
-		public size: number,
-		public rot?: number,
-	) {
-		super();
+	public drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
+		this.ensureCapacity(5);
+		this.data[this.length++] = Commands.DrawTriangle;
+		this.data[this.length++] = x1;
+		this.data[this.length++] = y1;
+		this.data[this.length++] = x2;
+		this.data[this.length++] = y2;
+		this.data[this.length++] = x3;
+		this.data[this.length++] = y3;
 	}
-}
 
-export class DrawCustomSidePolygonCommand extends Command {
-	public readonly type = "draw_custom_side_polygon" as const;
-
-	constructor(
-		public x: number,
-		public y: number,
-		public size: number,
-		public sides: number,
-		public rot?: number,
-	) {
-		super();
+	public drawRegularPolygon(x: number, y: number, size: number, sides: number, rot = 0): void {
+		this.ensureCapacity(6);
+		this.data[this.length++] = Commands.DrawRegularPolygon;
+		this.data[this.length++] = x;
+		this.data[this.length++] = y;
+		this.data[this.length++] = size;
+		this.data[this.length++] = sides;
+		this.data[this.length++] = rot;
 	}
-}
 
-export class DrawPolygonCommand extends Command {
-	public readonly type = "draw_polygon" as const;
+	public drawPolygon(vertices: Array<Vector2>): void {
+		const vertCount = vertices.length;
+		const requiredSlots = 2 + vertCount * 2;
+		this.ensureCapacity(requiredSlots);
 
-	constructor([..._entities]) {
-		super();
+		this.data[this.length++] = Commands.DrawPolygon;
+		this.data[this.length++] = vertCount;
+
+		for (let i = 0; i < vertCount; i++) {
+			const pt = vertices[i];
+			if (pt) {
+				this.data[this.length++] = pt.x;
+				this.data[this.length++] = pt.y;
+			}
+		}
+	}
+
+	public send() {
+		
 	}
 }

@@ -1,43 +1,25 @@
-import { CanvasBackend } from "./backends/Canvas";
-import { WebGPUBackend } from "./backends/WebGPU";
-import {
-	ClearCommand,
-	type Command,
-	DrawCircleCommand,
-	DrawCustomSidePolygonCommand,
-	DrawHexagonCommand,
-	DrawLineCommand,
-	DrawOctogonCommand,
-	DrawPentagonCommand,
-	DrawPolygonCommand,
-	DrawSeptagonCommand,
-	DrawSquareCommand,
-	DrawTriangleCommand,
-	SetClearCommand,
-	SetColorCommand,
-} from "./Commands";
-import { Driver } from "./Driver";
-import type { RenderEvent } from "./RenderEvent";
-import {
-	type Backend,
-	Backends,
-	type RenderConfigs,
-	type Texture,
-} from "./Renderer";
+import { RenderEvent } from "./RenderEvent";
+import { type Backend, Backends, type RenderConfigs, type Texture } from "./Renderer";
+import { CanvasBackend } from "./backends/canvas";
+import { WebGLBackend } from "./backends/webgl";
+import { WebGPUBackend } from "./backends/webgpu";
+
 
 export class Engine {
-	private configs: RenderConfigs;
-	private driver!: Driver;
-	private backend!: Backend;
-	private textures: Map<string, Texture> = new Map();
-	private active = false;
-	private canvas: HTMLCanvasElement;
+  private configs: RenderConfigs;
+  private canvas: HTMLCanvasElement;
 
-	public onRender: (event: RenderEvent) => void = () => {};
+	private backend: Backend;
+  private renderEvent: RenderEvent;
 
-	constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
-		this.canvas = canvas;
-		this.configs = configs;
+  private textures: Map<string, Texture> = new Map();
+  private active = false;
+
+  public onRender: (event: RenderEvent) => void = () => { };
+
+  constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
+    this.canvas = canvas;
+    this.configs = configs;
 
 		let backend: Backend;
 		switch (this.configs.backend) {
@@ -48,7 +30,8 @@ export class Engine {
 				backend = new WebGPUBackend(canvas, configs);
 				break;
 			case Backends.WEBGL:
-				throw new Error("WebGL backend not implemented yet");
+				backend = new WebGLBackend(canvas, configs);
+				break;
 			default:
 				throw new Error(`Unsupported backend: ${this.configs.backend}`);
 		}
