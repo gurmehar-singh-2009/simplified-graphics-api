@@ -1,0 +1,24 @@
+.vp-doc h3 {
+  margin-top: 2.5rem !important;
+  margin-bottom: 0.75rem !important;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--vp-c-bg-soft);
+  border-left: 4px solid var(--vp-c-brand-1);
+  border-radius: 4px;
+}
+
+.vp-doc p {
+  margin: 0.4rem 0 !important;
+  line-height: 1.5;
+}
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+  margin: 0.5rem 0 1.25rem 0 !important;
+}
+
+.vp-doc hr {
+  margin: 2rem 0 !important;
+  border-color: var(--vp-c-divider);
+}
