@@ -1,67 +1,70 @@
-// NOTE BEFORE READING!!!
-//
-// i have NEVER used webgpu in js/ts, only rust
-// so excuse any potential shitty code and such
-//
-//
-// also:
-// so like webgpu isnt immediate mode, you dont really use it the same way
-// as canvas2d or webgl
-// im gonna try and mimick it for sanity purposes but its really going against
-// how its designed
-//
-
 import fs_source from "../../graphics/shaders/webgpu/fragment.wgsl" with { type: "text" };
 import vs_source from "../../graphics/shaders/webgpu/vertex.wgsl" with { type: "text" };
 import { computeViewProjMatrix } from "../../math/util";
 import { Commands } from "../commands";
 import type { Backend, RenderConfigs } from "../renderer";
-import { CameraUniform } from "./buffers/CameraBuffer";
-import { EntityInstance } from "./buffers/EntityInstance";
-import { FontAtlas } from "./buffers/FontAtlas";
-
-// stupid typescript implementation
-// rust better
+import { CameraUniform } from "./buffers/cameraBuffer";
+import { EntityInstance } from "./buffers/entityInstance";
+import { FontAtlas } from "./buffers/fontAtlas";
 
 /**
- * WebGPU Backend implementation. Implements the Backend interface.
+ * WebGPU graphics backend managing GPU resources, pipelines, and instanced batch rendering.
  */
 export class WebGPUBackend implements Backend {
-  /** Engine configurations. */
+  /** Global engine configuration options. */
   configs: RenderConfigs;
 
-  // apparently THIS is the equivalent of a Surface?
-  // god javascript devs ruin everything
-  /** The "Surface" to render on. No idea why it has such a shitty name. */
+  /** WebGPU canvas context for displaying rendered frames. */
   private ctx: GPUCanvasContext;
+
+  /** Primary GPU logical device handle. */
   private device!: GPUDevice;
+  /** Primary GPU command queue handle. */
   private queue!: GPUQueue;
 
+  /** Main instanced render pipeline. */
   private render_pipeline!: GPURenderPipeline;
 
-  // yay buffers
+  /** GPU buffer for instanced render data (shapes & text). */
   private instance_buffer!: GPUBuffer;
+  /** GPU uniform buffer containing camera matrices and viewport params. */
   private camera_buffer!: GPUBuffer;
 
+  /** Bind group holding camera uniform bindings. */
   private camera_bind_group!: GPUBindGroup;
 
+  /** Active number of instances queued for the current frame. */
   private num_instances: number = 0;
+  /** Viewport width in physical pixels. */
   private width: number = 1;
+  /** Viewport height in physical pixels. */
   private height: number = 1;
 
+  /** Background clear color (RGBA normalized 0.0-1.0). */
   private clearColor: [number, number, number, number] = [1, 0, 0, 1];
+  /** Current active draw color (RGBA normalized 0.0-1.0). */
   private currentColor: [number, number, number, number] = [1, 1, 1, 1];
+  /** Accumulated instances for immediate-mode drawing commands. */
   private frameInstances: EntityInstance[] = [];
+  /** World-space camera position [x, y]. */
   private cameraPos: [number, number] = [0, 0];
+  /** Camera zoom level. */
   private zoom: number = 1;
 
+  /** CPU font atlas generator. */
   private fontAtlas: FontAtlas;
+  /** GPU texture holding baked font atlas glyphs. */
   private atlas_texture!: GPUTexture;
+  /** Texture sampler for reading font atlas UVs. */
   private atlas_sampler!: GPUSampler;
+  /** Layout definition for font atlas texture/sampler bindings. */
   private atlas_bind_group_layout!: GPUBindGroupLayout;
+  /** Bind group referencing the font atlas texture and sampler. */
   private atlas_bind_group!: GPUBindGroup;
 
-  // webgpu boilerplate ._.
+  /**
+   * Initializes context and triggers asynchronous WebGPU setup.
+   */
   constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
     this.ctx = canvas.getContext("webgpu")!;
     this.configs = configs;
@@ -72,6 +75,9 @@ export class WebGPUBackend implements Backend {
     })();
   }
 
+  /**
+   * Requests WebGPU adapter/device, creates pipeline layouts, textures, and buffers.
+   */
   async initializeWebGPU(): Promise<void> {
     if (!navigator.gpu) {
       alert(
@@ -133,9 +139,6 @@ export class WebGPUBackend implements Backend {
       layout: camera_bind_group_layout,
       entries: [{ binding: 0, resource: { buffer: camera_buffer } }],
     });
-    // const vsUrl = new URL("../../graphics/shaders/webgpu/vertex.wgsl", import.meta.url);
-    // console.log("fetching:", vsUrl.href);
-    // const [vs, fs] = await Promise.all([fetch(vsUrl), fetch(new URL("../../../graphics/shaders/webgpu/fragment.wgsl", import.meta.url))]);
 
     const vs_module = device.createShaderModule({
       label: "vertex shader",
@@ -146,7 +149,6 @@ export class WebGPUBackend implements Backend {
       code: fs_source,
     });
 
-    // text stuff
     this.atlas_texture = device.createTexture({
       label: "font atlas",
       size: [this.fontAtlas.canvas.width, this.fontAtlas.canvas.height],
@@ -250,6 +252,9 @@ export class WebGPUBackend implements Backend {
     this.camera_bind_group = camera_bind_group;
   }
 
+  /**
+   * Resizes viewport canvas and updates camera aspect ratio matrices.
+   */
   public resize(width: number, height: number) {
     if (!this.queue || !this.camera_buffer) return;
 
@@ -286,6 +291,9 @@ export class WebGPUBackend implements Backend {
     }
   }
 
+  /**
+   * Packs entity instance data into binary layout and uploads to GPU instance buffer.
+   */
   public update(instances: EntityInstance[]): void {
     this.num_instances = instances.length;
 
@@ -321,6 +329,7 @@ export class WebGPUBackend implements Backend {
 
     const requiredSize = rawData.byteLength;
 
+    // reallocate if capacity exceeded
     if (requiredSize > this.instance_buffer.size) {
       this.instance_buffer.destroy();
 
@@ -338,6 +347,9 @@ export class WebGPUBackend implements Backend {
     }
   }
 
+  /**
+   * Updates camera uniform state and uploads updated matrix to GPU.
+   */
   public update_camera(camera_pos: [number, number], zoom: number) {
     const aspect_ratio = Math.max(1, this.width / this.height);
 
@@ -355,19 +367,19 @@ export class WebGPUBackend implements Backend {
     this.queue.writeBuffer(this.camera_buffer, 0, camera_uniform.bytes.buffer);
   }
 
+  /**
+   * Renders an explicit array of entity instances in a single pass.
+   */
   public render_entities_with_text(
     entities: Array<EntityInstance>,
     camera_pos: [number, number],
     zoom: number,
   ) {
-    // self.window.request_redraw();
-
     if (!entities.length) {
       return;
     }
 
     this.update_camera(camera_pos, zoom);
-
     this.update(entities);
 
     const texture = this.ctx.getCurrentTexture();
@@ -410,11 +422,17 @@ export class WebGPUBackend implements Backend {
     this.queue.submit([encoder.finish()]);
   }
 
+  /**
+   * Sets local camera target position and zoom level.
+   */
   public setCamera(pos: [number, number], zoom: number): void {
     this.cameraPos = pos;
     this.zoom = zoom;
   }
 
+  /**
+   * Internal helper to record a new shape instance to the current frame buffer.
+   */
   private pushInstance(inst: {
     position: [number, number];
     size: [number, number];
@@ -438,14 +456,23 @@ export class WebGPUBackend implements Backend {
     } as EntityInstance);
   }
 
+  /**
+   * Sets canvas clear color (0-255 RGB, 0-1 Alpha).
+   */
   clear(r: number, g: number, b: number, a: number): void {
     this.clearColor = [r / 255, g / 255, b / 255, a];
   }
 
+  /**
+   * Sets active drawing color for subsequent shape commands (0-255 RGB, 0-1 Alpha).
+   */
   setColor(r: number, g: number, b: number, a: number): void {
     this.currentColor = [r / 255, g / 255, b / 255, a];
   }
 
+  /**
+   * Pushes a 3-sided regular polygon instance.
+   */
   drawTriangle(
     x1: number,
     y1: number,
@@ -474,6 +501,9 @@ export class WebGPUBackend implements Backend {
     });
   }
 
+  /**
+   * Pushes a rectangle/square shape instance.
+   */
   drawSquare(
     x: number,
     y: number,
@@ -489,6 +519,9 @@ export class WebGPUBackend implements Backend {
     });
   }
 
+  /**
+   * Helper function pushing a regular polygon shape instance.
+   */
   private drawRegularPolygonImpl(
     x: number,
     y: number,
@@ -505,6 +538,9 @@ export class WebGPUBackend implements Backend {
     });
   }
 
+  /**
+   * Pushes a regular polygon instance with custom side counts.
+   */
   drawCustomSides(
     x: number,
     y: number,
@@ -514,6 +550,10 @@ export class WebGPUBackend implements Backend {
   ): void {
     this.drawRegularPolygonImpl(x, y, size, sides, rot);
   }
+
+  /**
+   * Pushes a regular polygon instance.
+   */
   drawRegularPolygon(
     x: number,
     y: number,
@@ -524,6 +564,9 @@ export class WebGPUBackend implements Backend {
     this.drawRegularPolygonImpl(x, y, size, sides, rot);
   }
 
+  /**
+   * Approximates a polygon from vertex points and pushes a polygon instance.
+   */
   drawPolygon(vertices: Array<[number, number]>): void {
     if (!vertices.length) return;
 
@@ -551,6 +594,9 @@ export class WebGPUBackend implements Backend {
     });
   }
 
+  /**
+   * Flushes all accumulated frame instances and submits the render pass to the GPU.
+   */
   present(): void {
     if (!this.device || !this.queue || !this.render_pipeline) return;
 
@@ -590,10 +636,11 @@ export class WebGPUBackend implements Backend {
     this.queue.submit([encoder.finish()]);
 
     this.frameInstances = [];
-    }
+  }
 
-  // Put this method here and not a base Backend class since we might want to process the command buffer differently in each backend.
-  // Having the command buffer here provides lots of flexibility but for now it is the same code in all three backends.
+  /**
+   * Decodes a binary command stream buffer into drawing calls and presents the frame.
+   */
   public processFrame(data: Float32Array, length: number): void {
     const driver = this as Backend;
     let i = 0;
@@ -721,6 +768,9 @@ export class WebGPUBackend implements Backend {
     this.present();
   }
 
+  /**
+   * Helper function pushing text glyph quad instances (shape_type = 5).
+   */
   private pushGlyphInstance(
     position: [number, number],
     size: [number, number],
@@ -741,6 +791,9 @@ export class WebGPUBackend implements Backend {
     } as EntityInstance);
   }
 
+  /**
+   * Lays out characters from font atlas and pushes glyph quads for rendering.
+   */
   public drawText(x: number, y: number, text: string, size: number): void {
     if (!this.fontAtlas) return;
 

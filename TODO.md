@@ -1,5 +1,6 @@
 - fix canvas text rendering
+- since i added `Matrix` type, use it!! (notably in cameraBuffer.ts, etc)
 - 3d support (basic shape primitives)
 - HBR and lighting support
 - .obj model loading
-- 
+-
