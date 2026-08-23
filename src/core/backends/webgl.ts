@@ -2,16 +2,16 @@ import type { RenderConfigs, Backend } from "../Renderer";
 import { Commands } from "../Commands";
 
 export class WebGLBackend implements Backend {
-  configs: RenderConfigs;
-  private ctx: WebGL2RenderingContext;
+	configs: RenderConfigs;
+	private ctx: RenderingContext;
 
-  private clearColor: string = "";
+	constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
+		this.configs = configs;
 
-  constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
-    this.configs = configs;
+		this.ctx = canvas.getContext("webgl2")!;
+	}
 
-    this.ctx = canvas.getContext("webgl2")!;
-  }
+	clear(): void {}
 
   clear(): void {
 
