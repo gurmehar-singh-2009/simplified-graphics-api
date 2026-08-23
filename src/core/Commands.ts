@@ -1,4 +1,4 @@
-import type { Vector2 } from "../math/vector2";
+import type { Vector2 } from "../math/Vector2";
 
 // Only the most essential commands are implemented in backend.
 // Other user facing methods like drawPentagon are handled in RenderEvent.

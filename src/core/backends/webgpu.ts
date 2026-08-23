@@ -20,8 +20,8 @@ import vs_source from "../../graphics/shaders/webgpu/vertex.wgsl" with {
 import { computeViewProjMatrix } from "../../math/util";
 import { Commands } from "../commands";
 import type { Backend, RenderConfigs } from "../renderer";
-import { CameraUniform } from "./buffers/cameraBuffer";
-import { EntityInstance } from "./buffers/entityInstance";
+import { CameraUniform } from "./buffers/CameraBuffer";
+import { EntityInstance } from "./buffers/EntityInstance";
 
 // stupid typescript implementation
 // rust better
