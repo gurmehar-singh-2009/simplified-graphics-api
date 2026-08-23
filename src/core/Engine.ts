@@ -1,20 +1,5 @@
 import { Driver } from "./backends/driver";
-import {
-  ClearCommand,
-  type Command,
-  DrawCircleCommand,
-  DrawCustomSidePolygonCommand,
-  DrawHexagonCommand,
-  DrawLineCommand,
-  DrawOctogonCommand,
-  DrawPentagonCommand,
-  DrawPolygonCommand,
-  DrawSeptagonCommand,
-  DrawSquareCommand,
-  DrawTriangleCommand,
-  SetClearCommand,
-  SetColorCommand,
-} from "./Commands";
+import { CommandBuffer } from "./Commands";
 import type { RenderEvent } from "./RenderEvent";
 import { Backends, type RenderConfigs, type Texture } from "./Renderer";
 
@@ -25,7 +10,7 @@ export class Engine {
   private active = false;
   private canvas: HTMLCanvasElement;
 
-  public onRender: (event: RenderEvent) => void = () => {};
+  public onRender: (event: RenderEvent) => void = () => { };
 
   constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
     this.canvas = canvas;
@@ -86,40 +71,24 @@ export class Engine {
   }
 
   private createRenderEvent(): RenderEvent {
-    const command_buffer: Array<Command> = [];
+    const command_buffer: CommandBuffer = new CommandBuffer();
 
     return {
-      clear: () => command_buffer.push(new ClearCommand()),
-      set2DColor: (r, g, b, a) =>
-        command_buffer.push(new SetColorCommand(r, g, b, a)),
-      set3DColor: (r, g, b, a) =>
-        command_buffer.push(new SetColorCommand(r, g, b, a)),
-      setClearColor: (r, g, b, a) =>
-        command_buffer.push(new SetClearCommand(r, g, b, a)),
-      drawLine: (a, b) => command_buffer.push(new DrawLineCommand(a, b)),
-
-      drawCircle: (x, y, radius) => command_buffer.push(new DrawCircleCommand(x, y, radius)),
-      drawTriangle: (x1, y1, x2, y2, x3, y3) =>
-        command_buffer.push(new DrawTriangleCommand(x1, y1, x2, y2, x3, y3)),
-      drawSquare: (x, y, w, h) =>
-        command_buffer.push(new DrawSquareCommand(x, y, w, h)),
-      drawPentagon: (x, y, size, rot) =>
-        command_buffer.push(new DrawPentagonCommand(x, y, size, rot)),
-      drawHexagon: (x, y, size, rot) =>
-        command_buffer.push(new DrawHexagonCommand(x, y, size, rot)),
-      drawSeptagon: (x, y, size, rot) =>
-        command_buffer.push(new DrawSeptagonCommand(x, y, size, rot)),
-      drawOctogon: (x, y, size, rot) =>
-        command_buffer.push(new DrawOctogonCommand(x, y, size, rot)),
-      drawCustomSides: (x, y, size, sides, rot) =>
-        command_buffer.push(
-          new DrawCustomSidePolygonCommand(x, y, size, sides, rot),
-        ),
-
-      drawPolygon: ([...entities]) =>
-        command_buffer.push(new DrawPolygonCommand(entities)),
-
-      draw: () => this.backendDriver.processFrame(command_buffer),
+      clear: () => command_buffer.clear(),
+      set2DColor: (r, g, b, a) => command_buffer.set2DColor(r, g, b, a),
+      set3DColor: (r, g, b, a) => command_buffer.set3DColor(r, g, b, a),
+      setClearColor: (r, g, b, a) => command_buffer.setClearColor(r, g, b, a),
+      drawLine: (a, b, thickness) => command_buffer.drawLine(a, b, thickness),
+      drawCircle: (x, y, radius) => command_buffer.drawCircle(x, y, radius),
+      drawSquare: (x, y, w, h) => command_buffer.drawSquare(x, y, w, h),
+      drawTriangle: (x1, y1, x2, y2, x3, y3) => command_buffer.drawTriangle(x1, y1, x2, y2, x3, y3),
+      drawPentagon: (x, y, size, rot) => command_buffer.drawRegularPolygon(x, y, size, 5, rot),
+      drawHexagon: (x, y, size, rot) => command_buffer.drawRegularPolygon(x, y, size, 6, rot),
+      drawSeptagon: (x, y, size, rot) => command_buffer.drawRegularPolygon(x, y, size, 7, rot),
+      drawOctogon: (x, y, size, rot) => command_buffer.drawRegularPolygon(x, y, size, 8, rot),
+      drawCustomSides: (x, y, size, sides, rot) => command_buffer.drawRegularPolygon(x, y, size, sides, rot),
+      drawPolygon: ([...entities]) => command_buffer.drawPolygon(entities),
+      draw: () => this.backendDriver.processFrame(command_buffer.data, command_buffer.length),
     };
   }
 }

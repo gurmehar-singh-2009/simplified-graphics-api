@@ -16,7 +16,7 @@ export interface RenderEvent {
 	set2DColor(r: number, g: number, b: number, a: number): void;
 	set3DColor(r: number, g: number, b: number, a: number): void;
 
-	drawLine(a: Vector2, b: Vector2): void;
+	drawLine(a: Vector2, b: Vector2, thickness: number): void;
 
 	// 2d
   drawCircle(x: number, y: number, radius: number): void;

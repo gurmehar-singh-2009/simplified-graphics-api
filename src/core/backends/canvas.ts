@@ -8,7 +8,7 @@ export class CanvasBackend implements Backend {
   configs: RenderConfigs;
   private ctx: CanvasRenderingContext2D;
 
-  private clearColor: string = "";
+  private clearColor: string = "rgba(0, 0, 0, 0)";
 
   constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
     this.configs = configs;
@@ -27,6 +27,15 @@ export class CanvasBackend implements Backend {
 
   setClearColor(r: number, g: number, b: number, a: number): void {
     this.clearColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+  }
+
+  drawLine(x1: number, y1: number, x2: number, y2: number, thickness: number): void {
+    this.ctx.lineWidth = thickness;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x1, y1);
+    this.ctx.lineTo(x2, y2);
+    this.ctx.closePath();
+    this.ctx.stroke();
   }
 
   drawCircle(x: number, y: number, radius: number): void {

@@ -1,20 +1,14 @@
-import type * as Cmds from "../Commands";
-import type { Command } from "../Commands";
+import { Command } from "../Commands";
 import { Backends, type Backend, type RenderConfigs, type Texture } from "../Renderer";
 import { CanvasBackend } from "./canvas";
 import { WebGLBackend } from "./webgl";
 import { WebGPUBackend } from "./webgpu";
 
-type CommandClassKey = Exclude<keyof typeof Cmds, "Command">;
-type EngineCommand = InstanceType<(typeof Cmds)[CommandClassKey]>;
-
 export class Driver {
   private backend: Backend | null = null;
 
-  private clearColor: Array<number> = [255, 255, 255, 1];
-
   init(canvas: HTMLCanvasElement, configs: RenderConfigs): void {
-    switch(configs.backend) {
+    switch (configs.backend) {
       case Backends.CANVAS:
         this.backend = new CanvasBackend(canvas, configs);
         break;
@@ -27,67 +21,62 @@ export class Driver {
     }
   }
 
-  processFrame(commands: Array<Command>): void {
-    for (const c of commands) {
-      const cmd = c as EngineCommand;
+  processFrame(data: Float32Array, length: number): void {
+    if (!this.backend) return;
 
-      switch (cmd.type) {
-        case "clear": {
-          const [r, g, b, a] = this.clearColor;
-          this.backend?.setClearColor(r!, g!, b!, a!);
-          this.backend?.clear();
+    let i = 0;
 
+    while (i < length) {
+      const opcode = data[i++];
+
+      switch (opcode) {
+        case Command.Clear: {
+          this.backend.clear!()
           break;
         }
 
-        case "set_clear":
-          this.backend?.setClearColor(cmd.r, cmd.g, cmd.b, cmd.a);
+        case Command.Set2DColor:
+        case Command.Set3DColor:
+          this.backend.setColor!(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
 
-        case "set_color":
-          this.backend?.setColor(cmd.r, cmd.g, cmd.b, cmd.a);
+        case Command.SetClearColor: {
+          this.backend.setClearColor!(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
+          break;
+        }
+
+        case Command.DrawLine:
+          this.backend.drawLine!(data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
 
-        case "draw_circle":
-          this.backend?.drawCircle(cmd.x, cmd.y, cmd.radius);
+        case Command.DrawCircle:
+          this.backend.drawCircle!(data[i++]!, data[i++]!, data[i++]!);
           break;
 
-        case "draw_triangle":
-          this.backend?.drawTriangle(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x3, cmd.y3);
+        case Command.DrawSquare:
+          this.backend.drawSquare!(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
 
-        case "draw_square":
-          this.backend?.drawSquare(cmd.x, cmd.y, cmd.w, cmd.h);
+        case Command.DrawTriangle:
+          this.backend.drawTriangle!(data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
 
-        case "draw_pentagon":
-          this.backend?.drawRegularPolygon(cmd.x, cmd.y, cmd.size, 5, cmd.rot);
+        case Command.DrawRegularPolygon:
+          this.backend.drawRegularPolygon!(data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
 
-        case "draw_hexagon":
-          this.backend?.drawRegularPolygon(cmd.x, cmd.y, cmd.size, 6, cmd.rot);
+        case Command.DrawPolygon: {
+          const vertCount = data[i++]!;
+          const vertices: Array<[number, number]> = [];
+          for (let v = 0; v < vertCount; v++) {
+            vertices.push([data[i++]!, data[i++]!]);
+          }
+          this.backend.drawPolygon!(vertices);
           break;
-
-        case "draw_septagon":
-          this.backend?.drawRegularPolygon(cmd.x, cmd.y, cmd.size, 7, cmd.rot);
-          break;
-
-        case "draw_octogon":
-          this.backend?.drawRegularPolygon(cmd.x, cmd.y, cmd.size, 8, cmd.rot);
-          break;
-
-        case "draw_custom_side_polygon":
-          this.backend?.drawRegularPolygon(
-            cmd.x,
-            cmd.y,
-            cmd.size,
-            cmd.sides,
-            cmd.rot,
-          );
-          break;
+        }
       }
     }
   }
 
-  loadTexture(_texture: Texture): void {}
+  loadTexture(_texture: Texture): void { }
 }
