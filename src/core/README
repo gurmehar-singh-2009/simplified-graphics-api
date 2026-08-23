@@ -1,29 +1,29 @@
-lets be clear about how we want to design this:
+// lets be clear about how we want to design this:
 
-example demo code:
+// example demo code:
 
-import { Backends } from "our lib";
+// import { Backends } from "our lib";
 
-let engine = new Engine(canvas, {
-    backend: Backends.CANVAS,
-    antialias: false,
-});
+// let engine = new Engine(canvas, {
+//     backend: Backends.CANVAS,
+//     antialias: false,
+// });
 
-engine.start();
+// engine.start();
 
-engine.onRender = (event) => {
-    event.clear();
+// engine.onRender = (event) => {
+//     event.clear();
 
-    event.set2DColor(r, g, b, a);
-    event.drawSquare(x, y, w, h);
+//     event.set2DColor(r, g, b, a);
+//     event.drawSquare(x, y, w, h);
 
-    // now here, we can diverge. we can:
-    // 1. initiate draw calls on methods like ".fill()", ".draw()",
-    // 2. have our engine do it completely and just keep it there for dramatic effect
-    event.draw();
-};
+//     // now here, we can diverge. we can:
+//     // 1. initiate draw calls on methods like ".fill()", ".draw()",
+//     // 2. have our engine do it completely and just keep it there for dramatic effect
+//     event.draw();
+// };
 
-engine.loadTexture(texture);
-engine.loadTextures([texture1, texture2]);
+// engine.loadTexture(texture);
+// engine.loadTextures([texture1, texture2]);
 
-engine.evaluateCustomShader(``); // WAYYYY LATER
+// engine.evaluateCustomShader(``); // WAYYYY LATER

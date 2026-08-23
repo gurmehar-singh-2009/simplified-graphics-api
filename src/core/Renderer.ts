@@ -1,14 +1,9 @@
 export type Dimension = "2D" | "3D";
 
-// note about enums, worth mentioning:
-// enums in typescript ARE ACTUAL GARBAGE!!!
-// they generate shitty glue code
-// and the alternative is so ugly i will not reference it here.
-// just know that i will BE USING ENUMS EVERYWHERE REGARDLESS of how pretty the resulting code may be
 export enum Backends {
 	CANVAS,
 	WEBGL,
-	WEBGPU, //! EXPERIMENTAL!!! probably not gonna utilize until the ENTIRE engine is complete.
+	WEBGPU,
 }
 
 export interface RenderConfigs {
@@ -44,7 +39,6 @@ export interface Backend {
 		rot?: number,
 	): void;
 	drawPolygon?(vertices: Array<[number, number]>): void;
-	present?(): void;
 	resize?(width: number, height: number): void;
 
 	processFrame(data: Float32Array, length: number): void;

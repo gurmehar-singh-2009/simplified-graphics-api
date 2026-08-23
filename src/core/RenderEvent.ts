@@ -23,12 +23,8 @@ export class RenderEvent {
     this.commandBuffer.clear(r, g, b, a);
   }
 
-  public set2DColor(r: number, g: number, b: number, a: number): void {
+  public setColor(r: number, g: number, b: number, a: number): void {
     this.commandBuffer.set2DColor(r, g, b, a);
-  }
-
-  public set3DColor(r: number, g: number, b: number, a: number): void {
-    this.commandBuffer.set3DColor(r, g, b, a);
   }
 
   public drawLine(a: Vector2, b: Vector2, thickness: number): void {
@@ -47,6 +43,15 @@ export class RenderEvent {
     this.commandBuffer.drawTriangle(x1, y1, x2, y2, x3, y3);
   }
 
+  public drawRegularPolygon(x: number, y: number, size: number, sides: number, rot?: number): void {
+    this.commandBuffer.drawRegularPolygon(x, y, size, sides, rot);
+  }
+
+  public drawPolygon(vertices: Array<Vector2>): void {
+    this.commandBuffer.drawPolygon(vertices);
+  }
+
+  // Extra commands handled here so backends dont get cluttered.
   public drawPentagon(x: number, y: number, size: number, rot?: number): void {
     this.commandBuffer.drawRegularPolygon(x, y, size, 5, rot);
   }
@@ -61,13 +66,5 @@ export class RenderEvent {
 
   public drawOctogon(x: number, y: number, size: number, rot?: number): void {
     this.commandBuffer.drawRegularPolygon(x, y, size, 8, rot);
-  }
-
-  public drawCustomSides(x: number, y: number, size: number, sides: number, rot?: number): void {
-    this.commandBuffer.drawRegularPolygon(x, y, size, sides, rot);
-  }
-
-  public drawPolygon(vertices: Array<Vector2>): void {
-    this.commandBuffer.drawPolygon(vertices);
   }
 }

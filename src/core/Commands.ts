@@ -1,13 +1,11 @@
 import type { Vector2 } from "../math/Vector2";
 
 // Only the most essential commands are implemented in backend.
-// Other user facing methods like drawPentagon are handle in RenderEvent.
-// 
+// Other user facing methods like drawPentagon are handled in RenderEvent.
 
 export enum Commands {
 	Clear,
-	Set2DColor,
-	Set3DColor,
+	SetColor,
 	DrawLine,
 	DrawCircle,
 	DrawSquare,
@@ -49,16 +47,7 @@ export class CommandBuffer {
 
 	public set2DColor(r: number, g: number, b: number, a: number): void {
 		this.ensureCapacity(5);
-		this.data[this.length++] = Commands.Set2DColor;
-		this.data[this.length++] = r;
-		this.data[this.length++] = g;
-		this.data[this.length++] = b;
-		this.data[this.length++] = a;
-	}
-
-	public set3DColor(r: number, g: number, b: number, a: number): void {
-		this.ensureCapacity(5);
-		this.data[this.length++] = Commands.Set3DColor;
+		this.data[this.length++] = Commands.SetColor;
 		this.data[this.length++] = r;
 		this.data[this.length++] = g;
 		this.data[this.length++] = b;

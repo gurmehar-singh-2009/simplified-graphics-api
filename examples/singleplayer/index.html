@@ -10,11 +10,6 @@
             box-sizing: border-box;
             overflow: hidden;
         }
-
-        canvas {
-            width: 100vw;
-            height: 100vh;
-        }
         </style>
     </head>
 
@@ -58,7 +53,7 @@
             const SPEED = 250;
             const SMOOTHING = 0.2;
 
-            let lastTime = performance.now();
+            let lastTime = 0;
 
             const engine = new Engine(game, {
                 backend: Backends.WEBGPU,
@@ -66,10 +61,9 @@
             });
             engine.start();
 
-            engine.onRender = (e) => {
-                const now = performance.now();
-                const dt = (now - lastTime) / 1000;
-                lastTime = now;
+            engine.onFrame = (renderer, timestamp) => {
+                const dt = (timestamp - lastTime) / 1000;
+                lastTime = timestamp;
 
                 let dx = 0;
                 let dy = 0;
@@ -97,9 +91,9 @@
                 renderPos.x = lerp(renderPos.x, player.x, SMOOTHING);
                 renderPos.y = lerp(renderPos.y, player.y, SMOOTHING);
 
-                e.clear(0, 0, 0, 1);
-                e.set2DColor(255, 0, 0, 1);
-                e.drawSquare(renderPos.x, renderPos.y, 25, 25);
+                renderer.clear(0, 0, 0, 1);
+                renderer.setColor(255, 0, 0, 1);
+                renderer.drawSquare(renderPos.x, renderPos.y, 25, 25);
             };
         </script>
     </body>

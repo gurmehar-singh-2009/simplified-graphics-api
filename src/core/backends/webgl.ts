@@ -11,41 +11,37 @@ export class WebGLBackend implements Backend {
 		this.ctx = canvas.getContext("webgl2")!;
 	}
 
-	clear(r: number, g: number, b: number, a: number): void {
+	// clear(r: number, g: number, b: number, a: number): void {
 
-  }
+  // }
 
-  setColor(r: number, g: number, b: number, a: number): void {
+  // setColor(r: number, g: number, b: number, a: number): void {
 
-  }
+  // }
 
-  drawCircle(x: number, y: number, radius: number): void {
+  // drawCircle(x: number, y: number, radius: number): void {
 
-  }
+  // }
 
-  setClearColor(r: number, g: number, b: number, a: number): void {
+  // setClearColor(r: number, g: number, b: number, a: number): void {
 
-  }
+  // }
 
-  drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
+  // drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
 
-  }
+  // }
 
-  drawSquare(x: number, y: number, w: number, h: number): void {
+  // drawSquare(x: number, y: number, w: number, h: number): void {
 
-  }
+  // }
 
-  drawRegularPolygon(x: number, y: number, size: number, sides: number, rot?: number): void {
+  // drawRegularPolygon(x: number, y: number, size: number, sides: number, rot?: number): void {
 
-  }
+  // }
 
-  drawPolygon(vertices: Array<[number, number]>): void {
+  // drawPolygon(vertices: Array<[number, number]>): void {
 
-  }
-
-  resize(width: number, height: number): void {
-
-  }
+  // }
 
   // Put this method here and not a base Backend class since we might want to process the command buffer differently in each backend.
   // Having the command buffer here provides lots of flexibility but for now it is the same code in all three backends.
@@ -59,16 +55,15 @@ export class WebGLBackend implements Backend {
       switch (opcode) {
         case Commands.Clear: {
           if (!driver.clear) {
-            throw new Error("Active backend does not implement 'clear()'.");
+            throw new Error("WebGL backend does not implement 'clear()'.");
           }
           driver.clear(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
         }
 
-        case Commands.Set2DColor:
-        case Commands.Set3DColor: {
+        case Commands.SetColor: {
           if (!driver.setColor) {
-            throw new Error("Active backend does not implement 'setColor()'.");
+            throw new Error("WebGL backend does not implement 'setColor()'.");
           }
           driver.setColor(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
@@ -76,7 +71,7 @@ export class WebGLBackend implements Backend {
 
         case Commands.DrawLine: {
           if (!driver.drawLine) {
-            throw new Error("Active backend does not implement 'drawLine()'.");
+            throw new Error("WebGL backend does not implement 'drawLine()'.");
           }
           driver.drawLine(data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
@@ -84,7 +79,7 @@ export class WebGLBackend implements Backend {
 
         case Commands.DrawCircle: {
           if (!driver.drawCircle) {
-            throw new Error("Active backend does not implement 'drawCircle()'.");
+            throw new Error("WebGL backend does not implement 'drawCircle()'.");
           }
           driver.drawCircle(data[i++]!, data[i++]!, data[i++]!);
           break;
@@ -92,7 +87,7 @@ export class WebGLBackend implements Backend {
 
         case Commands.DrawSquare: {
           if (!driver.drawSquare) {
-            throw new Error("Active backend does not implement 'drawSquare()'.");
+            throw new Error("WebGL backend does not implement 'drawSquare()'.");
           }
           driver.drawSquare(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
@@ -100,7 +95,7 @@ export class WebGLBackend implements Backend {
 
         case Commands.DrawTriangle: {
           if (!driver.drawTriangle) {
-            throw new Error("Active backend does not implement 'drawTriangle()'.");
+            throw new Error("WebGL backend does not implement 'drawTriangle()'.");
           }
           driver.drawTriangle(
             data[i++]!, data[i++]!,
@@ -112,7 +107,7 @@ export class WebGLBackend implements Backend {
 
         case Commands.DrawRegularPolygon: {
           if (!driver.drawRegularPolygon) {
-            throw new Error("Active backend does not implement 'drawRegularPolygon()'.");
+            throw new Error("WebGL backend does not implement 'drawRegularPolygon()'.");
           }
           driver.drawRegularPolygon(
             data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!
@@ -122,7 +117,7 @@ export class WebGLBackend implements Backend {
 
         case Commands.DrawPolygon: {
           if (!driver.drawPolygon) {
-            throw new Error("Active backend does not implement 'drawPolygon()'.");
+            throw new Error("WebGL backend does not implement 'drawPolygon()'.");
           }
           const vertCount = data[i++]!;
           const vertices: Array<[number, number]> = [];

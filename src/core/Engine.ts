@@ -14,27 +14,28 @@ export class Engine {
   private textures: Map<string, Texture> = new Map();
   private active = false;
 
-  public onRender: (event: RenderEvent) => void = () => { };
+  public onFrame: (renderer: RenderEvent, timestamp: DOMHighResTimeStamp) => void = () => { };
 
   constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
     this.canvas = canvas;
     this.configs = configs;
 
-    let backend: Backend;
+    // Pick the correct backend.
     switch (this.configs.backend) {
       case Backends.CANVAS:
-        backend = new CanvasBackend(canvas, configs);
+        this.backend = new CanvasBackend(canvas, configs);
         break;
       case Backends.WEBGPU:
-        backend = new WebGPUBackend(canvas, configs);
+        this.backend = new WebGPUBackend(canvas, configs);
         break;
       case Backends.WEBGL:
-        backend = new WebGLBackend(canvas, configs);
+        this.backend = new WebGLBackend(canvas, configs);
         break;
       default:
         throw new Error(`Unsupported backend: ${this.configs.backend}`);
     }
-    this.backend = backend;
+
+    // This contaians the command buffer and all user facing methods.
     this.renderEvent = new RenderEvent();
   }
 
@@ -42,13 +43,14 @@ export class Engine {
     if (this.active) return;
     this.active = true;
 
-    const loop = () => {
+    const loop = (timestamp: DOMHighResTimeStamp) => {
       if (!this.active) return;
 
       this.renderEvent.resetCommandBuffer();
 
-      this.onRender(this.renderEvent);
+      this.onFrame(this.renderEvent, timestamp);
 
+      // Send all commands to backend
       this.backend.processFrame(this.renderEvent.commandBuffer.data, this.renderEvent.commandBuffer.length);
 
       requestAnimationFrame(loop);

@@ -557,16 +557,15 @@ export class WebGPUBackend implements Backend {
             switch (opcode) {
                 case Commands.Clear: {
                     if (!driver.clear) {
-                        throw new Error("Active backend does not implement 'clear()'.");
+                        throw new Error("WebGPU backend does not implement 'clear()'.");
                     }
                     driver.clear(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
                     break;
                 }
 
-                case Commands.Set2DColor:
-                case Commands.Set3DColor: {
+                case Commands.SetColor: {
                     if (!driver.setColor) {
-                        throw new Error("Active backend does not implement 'setColor()'.");
+                        throw new Error("WebGL backend does not implement 'setColor()'.");
                     }
                     driver.setColor(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
                     break;
@@ -574,7 +573,7 @@ export class WebGPUBackend implements Backend {
 
                 case Commands.DrawLine: {
                     if (!driver.drawLine) {
-                        throw new Error("Active backend does not implement 'drawLine()'.");
+                        throw new Error("WebGPU backend does not implement 'drawLine()'.");
                     }
                     driver.drawLine(data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!);
                     break;
@@ -582,7 +581,7 @@ export class WebGPUBackend implements Backend {
 
                 case Commands.DrawCircle: {
                     if (!driver.drawCircle) {
-                        throw new Error("Active backend does not implement 'drawCircle()'.");
+                        throw new Error("WebGPU backend does not implement 'drawCircle()'.");
                     }
                     driver.drawCircle(data[i++]!, data[i++]!, data[i++]!);
                     break;
@@ -590,7 +589,7 @@ export class WebGPUBackend implements Backend {
 
                 case Commands.DrawSquare: {
                     if (!driver.drawSquare) {
-                        throw new Error("Active backend does not implement 'drawSquare()'.");
+                        throw new Error("WebGPU backend does not implement 'drawSquare()'.");
                     }
                     driver.drawSquare(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
                     break;
@@ -598,7 +597,7 @@ export class WebGPUBackend implements Backend {
 
                 case Commands.DrawTriangle: {
                     if (!driver.drawTriangle) {
-                        throw new Error("Active backend does not implement 'drawTriangle()'.");
+                        throw new Error("WebGPU backend does not implement 'drawTriangle()'.");
                     }
                     driver.drawTriangle(
                         data[i++]!, data[i++]!,
@@ -610,7 +609,7 @@ export class WebGPUBackend implements Backend {
 
                 case Commands.DrawRegularPolygon: {
                     if (!driver.drawRegularPolygon) {
-                        throw new Error("Active backend does not implement 'drawRegularPolygon()'.");
+                        throw new Error("WebGPU backend does not implement 'drawRegularPolygon()'.");
                     }
                     driver.drawRegularPolygon(
                         data[i++]!, data[i++]!, data[i++]!, data[i++]!, data[i++]!
@@ -620,7 +619,7 @@ export class WebGPUBackend implements Backend {
 
                 case Commands.DrawPolygon: {
                     if (!driver.drawPolygon) {
-                        throw new Error("Active backend does not implement 'drawPolygon()'.");
+                        throw new Error("WebGPU backend does not implement 'drawPolygon()'.");
                     }
                     const vertCount = data[i++]!;
                     const vertices: Array<[number, number]> = [];
