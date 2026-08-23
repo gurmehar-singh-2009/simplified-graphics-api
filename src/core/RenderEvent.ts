@@ -1,35 +1,78 @@
 // reminder of what this is:
 // this is the "event" object we get on like engine.onRender
 //
-
-import type { Vector2 } from "../math/Vector2";
-
 // i also dont know if this is worth it: returning true/false if the operation failed/succeeded
 //
 // essentially, this is what they get as the callback param to do stuff with
-export interface RenderEvent {
-	clear(): void;
 
-	// LATER: use `Color`
-	setClearColor(r: number, g: number, b: number, a: number): void;
+import type { Vector2 } from "../math/Vector2";
+import { CommandBuffer } from "./Commands";
 
-	set2DColor(r: number, g: number, b: number, a: number): void;
-	set3DColor(r: number, g: number, b: number, a: number): void;
+export class RenderEvent {
+  public commandBuffer: CommandBuffer;
 
-	drawLine(a: Vector2, b: Vector2): void;
+  constructor() {
+    this.commandBuffer = new CommandBuffer();
+  }
 
-	// 2d
-  drawCircle(x: number, y: number, radius: number): void;
-	drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void;
-  drawSquare(x: number, y: number, w: number, h: number, rot?: number): void;
-  drawPentagon(x: number, y: number, size: number, rot?: number): void;
-  drawHexagon(x: number, y: number, size: number, rot?: number): void;
-  drawSeptagon(x: number, y: number, size: number, rot?: number): void;
-  drawOctogon(x: number, y: number, size: number, rot?: number): void;
-  drawCustomSides(x: number, y: number, size: number, sides: number, rot?: number): void;
-  drawPolygon(vertices: Array<Vector2>): void;
+  public resetCommandBuffer(): void {
+    this.commandBuffer.reset();
+  }
 
-  // 3d
+  public clear(r: number, g: number, b: number, a: number): void {
+    this.commandBuffer.clear(r, g, b, a);
+  }
 
-	draw(): void;
+  public set2DColor(r: number, g: number, b: number, a: number): void {
+    this.commandBuffer.set2DColor(r, g, b, a);
+  }
+
+  public set3DColor(r: number, g: number, b: number, a: number): void {
+    this.commandBuffer.set3DColor(r, g, b, a);
+  }
+
+  public drawLine(a: Vector2, b: Vector2, thickness: number): void {
+    this.commandBuffer.drawLine(a, b, thickness);
+  }
+
+  public drawCircle(x: number, y: number, radius: number): void {
+    this.commandBuffer.drawCircle(x, y, radius);
+  }
+
+  public drawSquare(x: number, y: number, w: number, h: number): void {
+    this.commandBuffer.drawSquare(x, y, w, h);
+  }
+
+  public drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
+    this.commandBuffer.drawTriangle(x1, y1, x2, y2, x3, y3);
+  }
+
+  public drawPentagon(x: number, y: number, size: number, rot?: number): void {
+    this.commandBuffer.drawRegularPolygon(x, y, size, 5, rot);
+  }
+
+  public drawHexagon(x: number, y: number, size: number, rot?: number): void {
+    this.commandBuffer.drawRegularPolygon(x, y, size, 6, rot);
+  }
+
+  public drawSeptagon(x: number, y: number, size: number, rot?: number): void {
+    this.commandBuffer.drawRegularPolygon(x, y, size, 7, rot);
+  }
+
+  public drawOctogon(x: number, y: number, size: number, rot?: number): void {
+    this.commandBuffer.drawRegularPolygon(x, y, size, 8, rot);
+  }
+
+  public drawCustomSides(x: number, y: number, size: number, sides: number, rot?: number): void {
+    this.commandBuffer.drawRegularPolygon(x, y, size, sides, rot);
+  }
+
+  public drawPolygon(vertices: Array<Vector2>): void {
+    this.commandBuffer.drawPolygon(vertices);
+  }
+
+  public draw() {
+    this.commandBuffer.send();
+    // here?
+  }
 }

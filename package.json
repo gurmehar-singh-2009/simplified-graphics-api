@@ -1,23 +1,24 @@
 {
-  "name": "simplified-graphics-api",
-  "module": "src/index.ts",
-  "type": "module",
-  "scripts": {
-    "dev": "bun run dev-server.ts",
-    "start": "bun run src/index.ts",
-    "build": "bun build ./src/index.ts --outdir ./dist",
-    "format": "bunx --bun @biomejs/biome format --write",
-    "lint": "bunx --bun @biomejs/biome lint --write",
-    "check:unsafe": "bunx --bun @biomejs/biome check --write --unsafe ./src",
-    "typecheck": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.5.10",
-    "@types/bun": "latest",
-    "@webgpu/types": "^0.1.72"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {}
+	"name": "simplified-graphics-api",
+	"module": "src/index.ts",
+	"type": "module",
+	"scripts": {
+		"dev": "bun run dev-server.ts",
+		"start": "bun run src/index.ts",
+		"build": "rm -rf dist && bun build ./src/index.ts --outdir ./dist --minify --sourcemap=linked --target browser",
+		"format": "bunx --bun @biomejs/biome format --write",
+		"lint": "bunx --bun @biomejs/biome lint --write",
+		"check:unsafe": "bunx --bun @biomejs/biome check --write --unsafe ./src",
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.10",
+		"@types/bun": "latest",
+		"@webgpu/types": "^0.1.72",
+		"typedoc": "^0.28.20"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {}
 }
