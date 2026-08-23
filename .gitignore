@@ -8,7 +8,9 @@ out
 dist
 *.tgz
 
-docs
+docs/api/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
 
 # code coverage
 coverage
