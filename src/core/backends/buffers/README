@@ -1,0 +1,5 @@
+stupid webgpu specification for typescript
+this is why rust better
+
+i need to make each buffer description its own class and stuff
+because lovely typescript likes to do everything in the most atrocious way possible

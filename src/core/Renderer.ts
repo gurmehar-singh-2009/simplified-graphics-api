@@ -47,4 +47,5 @@ export interface Backend {
 	): void;
 	drawPolygon(vertices: Array<[number, number]>): void;
 	present(): void;
+	resize?(width: number, height: number): void;
 }

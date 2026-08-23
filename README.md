@@ -4,6 +4,7 @@
 
 <p align=center>
     <sub>A really nice API to work with for game development!</sub>
+    <br>
     <sub>Developed at Centennial Collegiate Vocational Institute.</sub>
 </p>
 
@@ -26,10 +27,13 @@
 
 | Importance | Feature | Status |
 | :---: | :-- | :--- |
-| High | Text Rendering | Planned |
-| Medium | 2D shape primitives | Planned |
-| Medium | 3D shape primitives | Planned |
+| High | 2D shape primitives | In progress |
+| High | 3D shape primitives | In progress |
+| High | Texture support | In progress |
+| Medium | Text Rendering | Planned |
+| Medium | Entities Support built in | Planned |
 | Low | WebGL/WebGPU tutorial | Planned |
+| Low | Multiplayer network support | Planned |
 
 
 ## Shortcut list (cmds)

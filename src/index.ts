@@ -5,8 +5,8 @@ const canvas = document.createElement("canvas");
 document.body.appendChild(canvas);
 
 const engine = new Engine(canvas, {
-	backend: Backends.CANVAS,
-	antialias: true,
+	backend: Backends.WEBGPU,
+	antialias: false,
 });
 
 console.log(engine);
@@ -18,6 +18,12 @@ engine.onRender = (e) => {
 
 	e.set2DColor(255, 0, 0, 1);
 	e.drawSquare(40, 40, 20, 20);
+
+	e.set2DColor(255, 0, 0, 0.3);
+	e.drawSquare(0, 0, 20, 20);
+
+	e.set2DColor(0, 0, 255, 0.2);
+	e.drawSquare(0, 0, 20, 20);
 
 	e.set2DColor(0, 255, 0, 1);
 	e.drawTriangle(80, 80, 100, 100, 0, 100);

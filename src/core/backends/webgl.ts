@@ -1,8 +1,8 @@
 import type { Backend, RenderConfigs } from "../Renderer";
 
 export class WebGLBackend implements Backend {
-  configs: RenderConfigs;
-  private ctx: RenderingContext;
+	configs: RenderConfigs;
+	private ctx: RenderingContext;
 
 	constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
 		this.configs = configs;

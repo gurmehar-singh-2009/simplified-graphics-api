@@ -1,5 +1,5 @@
-import { CanvasBackend } from "./backends/canvas";
-import { WebGPUBackend } from "./backends/webgpu";
+import { CanvasBackend } from "./backends/Canvas";
+import { WebGPUBackend } from "./backends/WebGPU";
 import {
 	ClearCommand,
 	type Command,
@@ -27,10 +27,11 @@ import {
 
 export class Engine {
 	private configs: RenderConfigs;
-	private backendDriver!: Driver;
+	private driver!: Driver;
+	private backend!: Backend;
 	private textures: Map<string, Texture> = new Map();
-  private active = false;
-  private canvas: HTMLCanvasElement;
+	private active = false;
+	private canvas: HTMLCanvasElement;
 
 	public onRender: (event: RenderEvent) => void = () => {};
 
@@ -51,7 +52,8 @@ export class Engine {
 			default:
 				throw new Error(`Unsupported backend: ${this.configs.backend}`);
 		}
-		this.backendDriver = new Driver(backend);
+		this.backend = backend;
+		this.driver = new Driver(backend);
 
 		// handle anti aliasing
 		canvas.width =
@@ -65,9 +67,22 @@ export class Engine {
 		if (configs.antialias) canvas.getContext("2d")?.scale(4, 4);
 	}
 
+	public getBackend<T extends Backend = Backend>(): T {
+		return this.backend as T;
+	}
+
 	public start(): void {
-		if (this.active) return;
+		if (this.active || !this.backend) return;
+
 		this.active = true;
+
+		const rect = this.canvas.getBoundingClientRect();
+		this.backend?.resize?.(rect.width, rect.height);
+
+		document.addEventListener("resize", () => {
+			const rect = this.canvas.getBoundingClientRect();
+			this.backend?.resize?.(rect.width, rect.height);
+		});
 
 		// this.backendDriver.init(this.canvas, this.configs, Backends.WEBGPU);
 
@@ -88,7 +103,7 @@ export class Engine {
 
 	public loadTexture(texture: Texture): void {
 		this.textures.set(texture.id, texture);
-		this.backendDriver.loadTexture(texture);
+		this.driver.loadTexture(texture);
 	}
 
 	public loadTextures(textures: Texture[]): void {
@@ -132,7 +147,7 @@ export class Engine {
 			drawPolygon: ([...entities]) =>
 				command_buffer.push(new DrawPolygonCommand(entities)),
 
-			draw: () => this.backendDriver.processFrame(command_buffer),
+			draw: () => this.driver.processFrame(command_buffer),
 		};
 	}
 }
