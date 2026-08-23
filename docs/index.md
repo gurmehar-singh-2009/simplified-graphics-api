@@ -3,7 +3,7 @@
 # Simplified Graphics API (name pending)
 
 <p align=center>
-    <sub>A really nice API to work with for game development!</sub>
+    <sub>A really nice API to work with for graphics programming!</sub>
     <br>
     <sub>Developed at Centennial Collegiate Vocational Institute.</sub>
 </p>
@@ -21,7 +21,11 @@
 > **Library is in active development.** Core systems are currently being written and will change without warning.
 
 ## Features (planned)
-- make a list here!!
+- Fully complete 2D renderer.
+- Fully complete 3D renderer.
+- - Can load .obj files.
+- - Supports HBR and has lighting support.
+- Fully complete texture + entity system.
 
 ## Project Roadmap
 
@@ -39,13 +43,28 @@
 | Low | Input Handling | Discussion |
 
 
-## Shortcut list (cmds)
+## Demo
+```ts
+import { Backends, Engine } from "simplified-graphics-api";
 
-- bun run format: formats all files
-- bun run lint: format, lint, and organize imports of all files
+const gameCanvas = document.createElement("gameCanvas");
+document.body.appendChild(gameCanvas);
 
+const engine = new Engine(gameCanvas, {
+  backend: Backends.WEBGPU,
+  antialias: false,
+  debug: false,
+});
 
-## notes to selves:
+engine.start();
 
-we will not be using monads (this thing is already ambitious as it stands, no need to overcomplicate)
-read the READMEs in each folder for additional information on what everything does (i put it wherever it made sense)
+engine.onFrame = (renderer, timestamp) => {
+  renderer.clear(0, 0, 0, 1);
+
+  renderer.setColor(255, 0, 0, 1);
+  renderer.drawSquare(40, 40, 50, 50);
+
+  renderer.setColor(255, 255, 255, 1);
+  renderer.drawText(50, 100, "Working Demo!", 22);
+}
+```
