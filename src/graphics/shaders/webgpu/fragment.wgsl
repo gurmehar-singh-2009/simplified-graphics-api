@@ -1,5 +1,8 @@
 const PI: f32 = 3.14159265359;
 
+@group(1) @binding(0) var atlas_tex: texture_2d<f32>;
+@group(1) @binding(1) var atlas_samp: sampler;
+
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
     @location(0) uv: vec2<f32>,
@@ -119,6 +122,19 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 
         let final_color = mix(in.fill_color, in.border_color, border_mix);
         return vec4<f32>(final_color.rgb, final_color.a * alpha);
+    }
+
+    if (in.shape_type == 5u) {
+        let local01 = (in.uv * 0.5) + vec2<f32>(0.5, 0.5);
+        // border_color is repurposed for glyphs: [u0, v0, uWidth, vHeight]
+        let atlas_uv = in.border_color.xy + local01 * in.border_color.zw;
+        let coverage = textureSampleLevel(atlas_tex, atlas_samp, atlas_uv, 0.0).a;
+        
+        if (coverage < 0.01) {
+            discard;
+        }
+        
+        return vec4<f32>(in.fill_color.rgb, in.fill_color.a * coverage);
     }
 
     return in.fill_color;

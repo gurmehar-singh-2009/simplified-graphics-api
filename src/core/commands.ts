@@ -12,7 +12,8 @@ export enum Commands {
 	DrawTriangle,
 	DrawRegularPolygon,
 	DrawPolygon,
-	Draw,
+  Draw,
+	DrawText,
 }
 
 export class CommandBuffer {
@@ -130,5 +131,20 @@ export class CommandBuffer {
 				this.data[this.length++] = pt.y;
 			}
 		}
-	}
+  }
+
+  public drawText(x: number, y: number, text: string, size: number): void {
+    const charCount = text.length;
+    this.ensureCapacity(5 + charCount);
+    
+    this.data[this.length++] = Commands.DrawText;
+    this.data[this.length++] = x;
+    this.data[this.length++] = y;
+    this.data[this.length++] = size;
+    this.data[this.length++] = charCount;
+    
+    for (let i = 0; i < charCount; i++) {
+      this.data[this.length++] = text.charCodeAt(i);
+    }
+  }
 }

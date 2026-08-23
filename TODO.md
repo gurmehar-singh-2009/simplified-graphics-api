@@ -1,0 +1,5 @@
+- fix canvas text rendering
+- 3d support (basic shape primitives)
+- HBR and lighting support
+- .obj model loading
+- 

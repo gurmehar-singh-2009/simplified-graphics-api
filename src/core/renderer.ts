@@ -8,7 +8,8 @@ export enum Backends {
 
 export interface RenderConfigs {
 	backend: Backends;
-	antialias: boolean;
+  antialias: boolean;
+  debug: boolean;
 	// default(): RenderConfigs;
 }
 
@@ -45,7 +46,8 @@ export interface Backend {
 		rot?: number,
 	): void;
 	drawPolygon?(vertices: Array<[number, number]>): void;
-	resize?(width: number, height: number): void;
+  resize?(width: number, height: number): void;
+  drawText?(x: number, y: number, text: string, size: number): void;
 
 	processFrame(data: Float32Array, length: number): void;
 }

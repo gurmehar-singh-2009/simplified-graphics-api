@@ -107,7 +107,21 @@ export class CanvasBackend implements Backend {
 		while (i < length) {
 			const opcode = data[i++] as Commands;
 
-			switch (opcode) {
+      switch (opcode) {
+        case Commands.DrawText: {
+          if (!driver.drawText) {
+            throw new Error("Canvas backend does not implement 'drawText()'.");
+          }
+          const x = data[i++]!;
+          const y = data[i++]!;
+          const size = data[i++]!;
+          const charCount = data[i++]!;
+          let text = "";
+          for (let c = 0; c < charCount; c++) text += String.fromCharCode(data[i++]!);
+          driver.drawText(x, y, text, size);
+          break;
+        }
+
 				case Commands.Clear: {
 					if (!driver.clear) {
 						throw new Error("Canvas backend does not implement 'clear()'.");
@@ -204,8 +218,14 @@ export class CanvasBackend implements Backend {
 					}
 					driver.drawPolygon(vertices);
 					break;
-				}
-			}
+        }
+      }
 		}
-	}
+  }
+
+  drawText(x: number, y: number, text: string, size: number): void {
+    this.ctx.font = `${size}px sans-serif`;
+    this.ctx.textBaseline = "top";
+    this.ctx.fillText(text, x, y);
+  }
 }

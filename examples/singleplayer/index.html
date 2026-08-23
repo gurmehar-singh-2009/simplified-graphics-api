@@ -4,12 +4,12 @@
         <title>singleplayer game example</title>
 
         <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                overflow: hidden;
+            }
         </style>
     </head>
 
@@ -56,12 +56,14 @@
             let lastTime = 0;
 
             const engine = new Engine(game, {
-                backend: Backends.WEBGL,
+                backend: Backends.WEBGPU,
                 antialias: false,
             });
             engine.start();
 
             engine.onFrame = (renderer, timestamp) => {
+                renderer.clear(200, 200, 200, 1);
+
                 const dt = (timestamp - lastTime) / 1000;
                 lastTime = timestamp;
 
@@ -71,6 +73,9 @@
                 if (keysDown.has("KeyS") || keysDown.has("ArrowDown")) dy += 1;
                 if (keysDown.has("KeyA") || keysDown.has("ArrowLeft")) dx -= 1;
                 if (keysDown.has("KeyD") || keysDown.has("ArrowRight")) dx += 1;
+
+                renderer.setColor(0, 0, 0, 1);
+                renderer.drawText(10, 20, "SDAONBASDINSDAO", 18);
 
                 // normalize
                 if (dx !== 0 || dy !== 0) {
@@ -91,9 +96,8 @@
                 renderPos.x = lerp(renderPos.x, player.x, SMOOTHING);
                 renderPos.y = lerp(renderPos.y, player.y, SMOOTHING);
 
-                renderer.clear(0, 0, 0, 1);
-                // renderer.setColor(255, 0, 0, 1);
-                // renderer.drawSquare(renderPos.x, renderPos.y, 25, 25);
+                renderer.setColor(255, 0, 0, 1);
+                renderer.drawSquare(renderPos.x, renderPos.y, 25, 25);
             };
         </script>
     </body>
