@@ -1,5 +1,5 @@
 import type { Vector2 } from "../math/vector2";
-import { Entity } from "./Entity";
+import { Entity } from "./entity";
 
 export class LineEntity extends Entity {
 	public override init(): void {
