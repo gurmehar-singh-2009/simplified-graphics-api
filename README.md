@@ -24,7 +24,7 @@
 - Fully complete 2D renderer.
 - Fully complete 3D renderer.
 - - Can load .obj files.
-- - Supports HBR and has lighting support.
+- - Supports HBR (High Definition Physically Based Rendering) and has lighting support.
 - Fully complete texture + entity system.
 
 ## Project Roadmap
@@ -34,11 +34,11 @@
 | High | 2D shape primitives | In progress |
 | High | 3D shape primitives | In progress |
 | High | Texture support | In progress |
-| Medium | Text Rendering | Planned |
+| Medium | Text Rendering | In Progress |
 | Medium | Entities Support built in | Planned |
 | Low | WebGL/WebGPU tutorial | Planned |
 | Low | Multiplayer network support | Planned |
-| Low | Debug panel | Planned |
+| Low | Debug panel | In Progress |
 | Low | Audio | Discussion |
 | Low | Input Handling | Discussion |
 

@@ -57,8 +57,9 @@
         let lastTime = 0;
 
         const engine = new Engine(game, {
-            backend: Backends.WEBGPU,
+            backend: Backends.CANVAS,
             antialias: false,
+            debug: true,
         });
 
         window.addEventListener("resize", () => {
@@ -109,5 +110,4 @@
         };
     </script>
 </body>
-
 </html>

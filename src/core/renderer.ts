@@ -47,7 +47,7 @@ export interface Backend {
 	): void;
 	drawPolygon?(vertices: Array<[number, number]>): void;
 	resize?(width: number, height: number): void;
-	drawText?(x: number, y: number, text: string, size: number): void;
+	drawText?(x: number, y: number, text: string, size: number, alignment: number): void;
 
 	processFrame(data: Float32Array, length: number): void;
 }

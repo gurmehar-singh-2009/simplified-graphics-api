@@ -81,7 +81,7 @@ export class RenderEvent {
 		this.commandBuffer.drawRegularPolygon(x, y, size, 8, rot);
 	}
 
-	public drawText(x: number, y: number, text: string, size: number): void {
-		this.commandBuffer.drawText(x, y, text, size);
+	public drawText(x: number, y: number, text: string, size: number, alignment: number): void {
+		this.commandBuffer.drawText(x, y, text, size, alignment);
 	}
 }
