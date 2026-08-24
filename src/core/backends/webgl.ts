@@ -1,3 +1,5 @@
+// Not complete yet.
+
 import type { RenderConfigs, Backend } from "../renderer";
 import { Commands } from "../commands";
 import vertexShaderSource from '../../graphics/shaders/webgl/vertex.glsl' with {
@@ -7,19 +9,79 @@ import fragmentShaderSource from '../../graphics/shaders/webgl/fragment.glsl' wi
   type: "text",
 };
 
+
+interface ShaderLocations {
+  program: WebGLProgram;
+  attributes: {
+    position: GLint;
+    texCoord: GLint;
+    colour: GLint;
+    type: GLint;
+  };
+  uniforms: {
+    resolution: WebGLUniformLocation;
+  };
+}
+
 export class WebGLBackend implements Backend {
   configs: RenderConfigs;
   private ctx: WebGL2RenderingContext;
+  private shaderLocations: ShaderLocations;
+  private vao: WebGLVertexArrayObject;
+  private vertexBuffer: WebGLBuffer;
+
+  // TODO: Implement dynamic vbo sizing
+  private floatsPerVertex: number = 9;
+  private maxVertices: number = 10000;
+
+  private batchData: Float32Array;
+  private batchOffset: number;
+
+  private currentColor: [number, number, number, number] = [1, 0, 0, 1];
 
   constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
     this.configs = configs;
 
     this.ctx = canvas.getContext("webgl2")!;
+    this.ctx.viewport(0, 0, 100, 100);
 
-    this.initShaderProgram(vertexShaderSource, fragmentShaderSource);
+    this.shaderLocations = this.initShaderProgram(vertexShaderSource, fragmentShaderSource);
+
+    this.ctx.enable(this.ctx.BLEND);
+    this.ctx.blendFunc(this.ctx.SRC_ALPHA, this.ctx.ONE_MINUS_SRC_ALPHA);
+
+    this.ctx.useProgram(this.shaderLocations.program);
+
+    // Create VAO
+    this.vao = this.ctx.createVertexArray();
+    this.ctx.bindVertexArray(this.vao);
+
+    this.vertexBuffer = this.ctx.createBuffer();
+    this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, this.vertexBuffer);
+
+    this.ctx.bufferData(this.ctx.ARRAY_BUFFER, this.floatsPerVertex * this.maxVertices * 4, this.ctx.DYNAMIC_DRAW);
+
+    let STRIDE = this.floatsPerVertex * 4;
+
+    this.ctx.enableVertexAttribArray(this.shaderLocations.attributes.position);
+    this.ctx.vertexAttribPointer(this.shaderLocations.attributes.position, 2, this.ctx.FLOAT, false, STRIDE, 0);
+
+    this.ctx.enableVertexAttribArray(this.shaderLocations.attributes.texCoord);
+    this.ctx.vertexAttribPointer(this.shaderLocations.attributes.texCoord, 2, this.ctx.FLOAT, false, STRIDE, 8);
+
+    this.ctx.enableVertexAttribArray(this.shaderLocations.attributes.colour);
+    this.ctx.vertexAttribPointer(this.shaderLocations.attributes.colour, 4, this.ctx.FLOAT, false, STRIDE, 16);
+
+    this.ctx.enableVertexAttribArray(this.shaderLocations.attributes.type);
+    this.ctx.vertexAttribPointer(this.shaderLocations.attributes.type, 1, this.ctx.FLOAT, false, STRIDE, 32);
+
+    this.ctx.bindVertexArray(null);
+
+    this.batchData = new Float32Array(this.maxVertices * this.floatsPerVertex);
+    this.batchOffset = 0;
   }
 
-  private initShaderProgram(vertexShaderSource: string, fragmentShaderSource: string): void {
+  private initShaderProgram(vertexShaderSource: string, fragmentShaderSource: string): ShaderLocations {
     let program = this.ctx.createProgram();
 
     this.ctx.attachShader(program, this.loadShader(this.ctx.VERTEX_SHADER, vertexShaderSource));
@@ -27,34 +89,26 @@ export class WebGLBackend implements Backend {
 
     this.ctx.linkProgram(program);
 
-    // this.shaderLocations = {
-    //     program: program,
+    return {
+      program: program,
 
-    //     attributes: {
-    //         position: this.ctx.getAttribLocation(program, "a_position"),
-    //         rotation: this.ctx.getAttribLocation(program, "a_rotation"),
-    //         pivot: this.ctx.getAttribLocation(program, "a_pivot"),
-    //         depth: this.ctx.getAttribLocation(program, "a_depth"),
-    //         texCoord: this.ctx.getAttribLocation(program, "a_texCoord"),
-    //         colour: this.ctx.getAttribLocation(program, "a_colour"),
-    //         type: this.ctx.getAttribLocation(program, "a_type")
-    //     },
+      attributes: {
+        position: this.ctx.getAttribLocation(program, "a_position"),
+        texCoord: this.ctx.getAttribLocation(program, "a_texCoord"),
+        colour: this.ctx.getAttribLocation(program, "a_colour"),
+        type: this.ctx.getAttribLocation(program, "a_type")
+      },
 
-    //     uniforms: {
-    //         resolution: this.ctx.getUniformLocation(program, "u_resolution"),
-    //         cameraPos: this.ctx.getUniformLocation(program, "u_cameraPos"),
-    //         viewRotation: this.ctx.getUniformLocation(program, "u_viewRotation"),
-    //         viewZoom: this.ctx.getUniformLocation(program, "u_viewZoom"),
-    //         textures: this.ctx.getUniformLocation(program, "u_textures")
-    //     }
-    // };
+      uniforms: {
+        resolution: this.ctx.getUniformLocation(program, "u_resolution")!
+      }
+    };
   }
 
-  private loadShader(type: GLenum, source: string) {
+  private loadShader(type: GLenum, source: string): WebGLShader {
     let shader = this.ctx.createShader(type) as WebGLShader;
 
     this.ctx.shaderSource(shader, source);
-
     this.ctx.compileShader(shader);
 
     if (!this.ctx.getShaderParameter(shader, this.ctx.COMPILE_STATUS)) {
@@ -64,32 +118,57 @@ export class WebGLBackend implements Backend {
     return shader;
   }
 
-  clear(r: number, g: number, b: number, a: number): void {
-    this.ctx.clearColor(r / 255, g / 255, b / 255, a);
+  private flush() {
+    this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, this.vertexBuffer);
+
+    this.ctx.bufferSubData(this.ctx.ARRAY_BUFFER, 0, this.batchData, 0, this.batchOffset);
+    this.ctx.bindVertexArray(this.vao);
+    this.ctx.drawArrays(this.ctx.TRIANGLES, 0, this.batchOffset / 9);
+
+    this.ctx.bindVertexArray(null);
   }
 
-  // setColor(r: number, g: number, b: number, a: number): void {
+  private addVertex(x: number, y: number, u: number, v: number, r: number, g: number, b: number, a: number, type: number) {
+    this.batchData[this.batchOffset++] = x;
+    this.batchData[this.batchOffset++] = y;
 
+    this.batchData[this.batchOffset++] = u;
+    this.batchData[this.batchOffset++] = v;
 
-  // }
+    this.batchData[this.batchOffset++] = r;
+    this.batchData[this.batchOffset++] = g;
+    this.batchData[this.batchOffset++] = b;
+    this.batchData[this.batchOffset++] = a;
 
-  // }
+    this.batchData[this.batchOffset++] = type;
+  }
 
-  // drawSquare(x: number, y: number, w: number, h: number): void {
+  clear(r: number, g: number, b: number, a: number): void {
+    this.flush();
+    this.ctx.clearColor(r / 255, g / 255, b / 255, a);
+    this.ctx.clear(this.ctx.COLOR_BUFFER_BIT);
+  }
 
-  // }
+  setColor(r: number, g: number, b: number, a: number): void {
+    this.currentColor = [r / 255, g / 255, b / 255, a];
+  }
 
-  // drawRegularPolygon(x: number, y: number, size: number, sides: number, rot?: number): void {
+  drawTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
+    const [r, g, b, a] = this.currentColor;
 
-  // }
+    this.addVertex(x1, y1, 0, 0, r, g, b, a, 1);
+    this.addVertex(x2, y2, 0, 0, r, g, b, a, 1);
+    this.addVertex(x3, y3, 0, 0, r, g, b, a, 1);
+  }
 
-  // drawPolygon(vertices: Array<[number, number]>): void {
+  resize(width: number, height: number): void {
+    this.ctx.viewport(0, 0, width, height);
+    this.ctx.uniform2f(this.shaderLocations.uniforms.resolution, width, height);
+  }
 
-  // }
-
-  // Put this method here and not a base Backend class since we might want to process the command buffer differently in each backend.
-  // Having the command buffer here provides lots of flexibility but for now it is the same code in all three backends.
   public processFrame(data: Float32Array, length: number): void {
+    this.batchOffset = 0;
+
     const driver = this as Backend;
     let i = 0;
 
@@ -192,5 +271,7 @@ export class WebGLBackend implements Backend {
         }
       }
     }
+
+    this.flush();
   }
 }

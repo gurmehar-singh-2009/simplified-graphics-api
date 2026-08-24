@@ -3,9 +3,9 @@ import vs_source from "../../graphics/shaders/webgpu/vertex.wgsl" with { type: "
 import { computeViewProjMatrix } from "../../math/util";
 import { Commands } from "../commands";
 import type { Backend, RenderConfigs } from "../renderer";
-import { CameraUniform } from "./buffers/cameraBuffer";
-import { EntityInstance } from "./buffers/entityInstance";
-import { FontAtlas } from "./buffers/fontAtlas";
+import { CameraUniform } from "./buffers/CameraBuffer";
+import { EntityInstance } from "./buffers/EntityInstance";
+import { FontAtlas } from "./buffers/FontAtlas";
 
 /**
  * WebGPU graphics backend managing GPU resources, pipelines, and instanced batch rendering.

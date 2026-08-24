@@ -12,7 +12,6 @@ export enum Commands {
 	DrawTriangle,
 	DrawRegularPolygon,
 	DrawPolygon,
-  Draw,
 	DrawText,
 }
 

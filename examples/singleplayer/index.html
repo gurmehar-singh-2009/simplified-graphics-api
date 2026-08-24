@@ -97,7 +97,7 @@
                 renderPos.y = lerp(renderPos.y, player.y, SMOOTHING);
 
                 renderer.setColor(255, 0, 0, 1);
-                renderer.drawSquare(renderPos.x, renderPos.y, 25, 25);
+                renderer.drawTriangle(renderPos.x, renderPos.y, renderPos.x+25, renderPos.y, renderPos.x, renderPos.y+25);
             };
         </script>
     </body>

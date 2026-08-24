@@ -1,11 +1,26 @@
 #version 300 es
 
-in vec2 a_position;
-in vec4 a_colour;
+precision highp float;
 
-out vec4 v_colour;
+in vec2 v_texCoord;
+in vec4 v_colour;
+in float v_type;
+
+uniform sampler2D u_textures[8];
+
+out vec4 outColour;
 
 void main() {
-    v_colour = a_colour;
-    gl_Position = vec4(a_position, 0.0, 1.0);
+    if (int(v_type) == 0) {
+        vec4 texColor;
+        texColor = texture(u_textures[0], v_texCoord);
+        outColour = texColor * v_colour;
+    } else if (int(v_type) == 1) {
+        outColour = v_colour;
+    } else {
+        vec2 uv = v_texCoord - vec2(0.5);
+        float distSq = dot(uv, uv);
+        if(distSq > 0.25) discard;
+        outColour = v_colour;
+    }
 }
