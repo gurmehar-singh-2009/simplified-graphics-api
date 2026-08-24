@@ -227,8 +227,6 @@ export class WebGLBackend implements Backend {
   }
 
   resize(width: number, height: number): void {
-    this.ctx.canvas.width = width;
-    this.ctx.canvas.height = height;
     this.ctx.viewport(0, 0, width, height);
     this.ctx.uniform2f(this.shaderLocations.uniforms.resolution, width, height);
   }

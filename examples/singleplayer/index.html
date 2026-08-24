@@ -1,104 +1,113 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <title>singleplayer game example</title>
 
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                overflow: hidden;
+<head>
+    <title>singleplayer game example</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="game"></canvas>
+
+    <script type="module">
+        import { Backends, Engine } from "../../dist/index.js";
+
+        const player = {
+            x: game.width / 2,
+            y: game.height / 2,
+        };
+
+        const renderPos = { x: player.x, y: player.y };
+
+        const keysDown = new Set();
+        const MOVE_KEYS = new Set([
+            "KeyW",
+            "KeyA",
+            "KeyS",
+            "KeyD",
+            "ArrowUp",
+            "ArrowLeft",
+            "ArrowDown",
+            "ArrowRight",
+        ]);
+
+        document.addEventListener("keydown", (e) => {
+            if (MOVE_KEYS.has(e.code)) e.preventDefault();
+            keysDown.add(e.code);
+        });
+        document.addEventListener("keyup", (e) => {
+            keysDown.delete(e.code);
+        });
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        const SPEED = 250;
+        const SMOOTHING = 0.2;
+
+        let lastTime = 0;
+
+        const engine = new Engine(game, {
+            backend: Backends.WEBGPU,
+            antialias: false,
+        });
+
+        window.addEventListener("resize", () => {
+            engine.resize(window.innerWidth, window.innerHeight);
+        });
+
+        engine.resize(window.innerWidth, window.innerHeight);
+
+        engine.start();
+
+        engine.onFrame = (renderer, timestamp) => {
+            renderer.clear(200, 200, 200, 1);
+
+            const dt = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
+            let dx = 0;
+            let dy = 0;
+            if (keysDown.has("KeyW") || keysDown.has("ArrowUp")) dy -= 1;
+            if (keysDown.has("KeyS") || keysDown.has("ArrowDown")) dy += 1;
+            if (keysDown.has("KeyA") || keysDown.has("ArrowLeft")) dx -= 1;
+            if (keysDown.has("KeyD") || keysDown.has("ArrowRight")) dx += 1;
+
+            renderer.setColor(0, 0, 0, 1);
+            renderer.drawText(10, 20, "NO WAIB bp1bo [][;'!!", 22);
+
+            // normalize
+            if (dx !== 0 || dy !== 0) {
+                const len = Math.hypot(dx, dy);
+                dx /= len;
+                dy /= len;
             }
-        </style>
-    </head>
 
-    <body>
-        <canvas id="game"></canvas>
+            player.x += dx * SPEED * dt;
+            player.y += dy * SPEED * dt;
 
-        <script type="module">
-            import { Backends, Engine } from "../../dist/index.js";
+            // bounds check
+            if (player.x < 0) player.x = 12.5;
+            if (player.y < 0) player.y = 12.5;
+            if (player.x > game.width) player.x = game.width - 25;
+            if (player.y > game.height) player.y = game.height - 25;
 
-            const player = {
-                x: game.width / 2,
-                y: game.height / 2,
-            };
+            renderPos.x = lerp(renderPos.x, player.x, SMOOTHING);
+            renderPos.y = lerp(renderPos.y, player.y, SMOOTHING);
 
-            const renderPos = { x: player.x, y: player.y };
+            renderer.setColor(255, 0, 0, 1);
+            renderer.drawTriangle(renderPos.x, renderPos.y, renderPos.x + 25, renderPos.y, renderPos.x, renderPos.y + 25);
+        };
+    </script>
+</body>
 
-            const keysDown = new Set();
-            const MOVE_KEYS = new Set([
-                "KeyW",
-                "KeyA",
-                "KeyS",
-                "KeyD",
-                "ArrowUp",
-                "ArrowLeft",
-                "ArrowDown",
-                "ArrowRight",
-            ]);
-
-            document.addEventListener("keydown", (e) => {
-                if (MOVE_KEYS.has(e.code)) e.preventDefault();
-                keysDown.add(e.code);
-            });
-            document.addEventListener("keyup", (e) => {
-                keysDown.delete(e.code);
-            });
-
-            function lerp(a, b, t) {
-                return a + (b - a) * t;
-            }
-
-            const SPEED = 250;
-            const SMOOTHING = 0.2;
-
-            let lastTime = 0;
-
-            const engine = new Engine(game, {
-                backend: Backends.WEBGPU,
-                antialias: false,
-            });
-            engine.start();
-
-            engine.onFrame = (renderer, timestamp) => {
-                renderer.clear(200, 200, 200, 1);
-
-                const dt = (timestamp - lastTime) / 1000;
-                lastTime = timestamp;
-
-                let dx = 0;
-                let dy = 0;
-                if (keysDown.has("KeyW") || keysDown.has("ArrowUp")) dy -= 1;
-                if (keysDown.has("KeyS") || keysDown.has("ArrowDown")) dy += 1;
-                if (keysDown.has("KeyA") || keysDown.has("ArrowLeft")) dx -= 1;
-                if (keysDown.has("KeyD") || keysDown.has("ArrowRight")) dx += 1;
-
-                renderer.setColor(0, 0, 0, 1);
-                renderer.drawText(10, 20, "NO WAIB bp1bo [][;'!!", 22);
-
-                // normalize
-                if (dx !== 0 || dy !== 0) {
-                    const len = Math.hypot(dx, dy);
-                    dx /= len;
-                    dy /= len;
-                }
-
-                player.x += dx * SPEED * dt;
-                player.y += dy * SPEED * dt;
-
-                // bounds check
-                if (player.x < 0) player.x = 12.5;
-                if (player.y < 0) player.y = 12.5;
-                if (player.x > game.width) player.x = game.width - 25;
-                if (player.y > game.height) player.y = game.height - 25;
-
-                renderPos.x = lerp(renderPos.x, player.x, SMOOTHING);
-                renderPos.y = lerp(renderPos.y, player.y, SMOOTHING);
-
-                renderer.setColor(255, 0, 0, 1);
-                renderer.drawTriangle(renderPos.x, renderPos.y, renderPos.x+25, renderPos.y, renderPos.x, renderPos.y+25);
-            };
-        </script>
-    </body>
 </html>

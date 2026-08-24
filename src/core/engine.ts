@@ -15,7 +15,7 @@ export class Engine {
 	public onFrame: (
 		renderer: RenderEvent,
 		timestamp: DOMHighResTimeStamp,
-	) => void = () => {};
+	) => void = () => { };
 
 	constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
 		this.canvas = canvas;
@@ -61,5 +61,16 @@ export class Engine {
 		};
 
 		requestAnimationFrame(loop);
+	}
+
+	public resize(width: number, height: number): void {
+		this.canvas.width = width;
+		this.canvas.height = height;
+
+		if (this.backend.resize) {
+			this.backend.resize(width, height);
+		} else {
+			throw new Error("Current backend does not implement 'resize()'.");
+		}
 	}
 }

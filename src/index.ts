@@ -14,21 +14,27 @@ export type { Vector2 } from "./math/vector2";
 
 
 // // For quick testing
-// import { Engine } from "./core/engine";
-// import { Backends } from "./core/renderer";
-// const canvas = document.createElement("canvas");
-// document.body.appendChild(canvas);
+import { Engine } from "./core/engine";
+import { Backends } from "./core/renderer";
+const canvas = document.createElement("canvas");
+document.body.appendChild(canvas);
 
-// const engine = new Engine(canvas, {
-// 	backend: Backends.WEBGL,
-// 	antialias: false,
-// });
+const engine = new Engine(canvas, {
+    backend: Backends.WEBGL,
+    antialias: false,
+});
 
-// engine.start();
+window.addEventListener("resize", () => {
+    engine.resize(window.innerWidth, window.innerHeight);
+});
 
-// engine.onFrame = (renderer, timestamp) => {
-//     renderer.clear(200, 200, 200, 1);
+engine.resize(window.innerWidth, window.innerHeight);
 
-//     renderer.setColor(255, 0, 0, 1);
-//     renderer.drawTriangle(0, 0, 100, 0, 0, 100);
-// };
+engine.start();
+
+engine.onFrame = (renderer, timestamp) => {
+    renderer.clear(200, 200, 200, 1);
+
+    renderer.setColor(255, 0, 0, 1);
+    renderer.drawTriangle(0, 0, 100, 0, 0, 100);
+};
