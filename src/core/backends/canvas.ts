@@ -123,7 +123,7 @@ export class CanvasBackend implements Backend {
 	 * @param w - Rectangle width in pixels.
 	 * @param h - Rectangle height in pixels.
 	 */
-	drawSquare(x: number, y: number, w: number, h: number): void {
+	drawRect(x: number, y: number, w: number, h: number): void {
 		this.ctx.fillRect(x, y, w, h);
 	}
 
@@ -244,13 +244,13 @@ export class CanvasBackend implements Backend {
 					break;
 				}
 
-				case Commands.DrawSquare: {
-					if (!driver.drawSquare) {
+				case Commands.DrawRect: {
+					if (!driver.drawRect) {
 						throw new Error(
-							"Canvas backend does not implement 'drawSquare()'.",
+							"Canvas backend does not implement 'drawRect()'.",
 						);
 					}
-					driver.drawSquare(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
+					driver.drawRect(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
 					break;
 				}
 
@@ -317,5 +317,9 @@ export class CanvasBackend implements Backend {
 		this.ctx.font = `${size}px sans-serif`;
 		this.ctx.textBaseline = "top";
 		this.ctx.fillText(text, x, y);
+	}
+
+	resize(width: number, height: number): void {
+		return;
 	}
 }

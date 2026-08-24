@@ -506,9 +506,9 @@ export class WebGPUBackend implements Backend {
 	}
 
 	/**
-	 * Pushes a rectangle/square shape instance.
+	 * Pushes a rectangle/Rect shape instance.
 	 */
-	drawSquare(
+	drawRect(
 		x: number,
 		y: number,
 		w: number,
@@ -693,13 +693,13 @@ export class WebGPUBackend implements Backend {
 					break;
 				}
 
-				case Commands.DrawSquare: {
-					if (!driver.drawSquare) {
+				case Commands.DrawRect: {
+					if (!driver.drawRect) {
 						throw new Error(
-							"WebGPU backend does not implement 'drawSquare()'.",
+							"WebGPU backend does not implement 'drawRect()'.",
 						);
 					}
-					driver.drawSquare(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
+					driver.drawRect(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
 					break;
 				}
 

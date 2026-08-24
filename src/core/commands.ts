@@ -8,7 +8,7 @@ export enum Commands {
 	SetColor,
 	DrawLine,
 	DrawCircle,
-	DrawSquare,
+	DrawRect,
 	DrawTriangle,
 	DrawRegularPolygon,
 	DrawPolygon,
@@ -72,9 +72,9 @@ export class CommandBuffer {
 		this.data[this.length++] = radius;
 	}
 
-	public drawSquare(x: number, y: number, w: number, h: number): void {
+	public drawRect(x: number, y: number, w: number, h: number): void {
 		this.ensureCapacity(5);
-		this.data[this.length++] = Commands.DrawSquare;
+		this.data[this.length++] = Commands.DrawRect;
 		this.data[this.length++] = x;
 		this.data[this.length++] = y;
 		this.data[this.length++] = w;

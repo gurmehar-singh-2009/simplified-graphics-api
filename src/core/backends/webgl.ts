@@ -37,9 +37,6 @@ export class WebGLBackend implements Backend {
 
     this.ctx = canvas.getContext("webgl2")!;
 
-    console.log(vertexShaderSource)
-    console.log(fragmentShaderSource)
-
     this.shaderLocations = this.initShaderProgram(
       vertexShaderSource,
       fragmentShaderSource,
@@ -153,7 +150,7 @@ export class WebGLBackend implements Backend {
     this.ctx.compileShader(shader);
 
     if (!this.ctx.getShaderParameter(shader, this.ctx.COMPILE_STATUS)) {
-      console.error("Shader Error: " + this.ctx.getShaderInfoLog(shader));
+      throw new Error("Shader Error: " + this.ctx.getShaderInfoLog(shader));
     }
 
     return shader;
@@ -211,6 +208,42 @@ export class WebGLBackend implements Backend {
     this.currentColor = [r / 255, g / 255, b / 255, a];
   }
 
+  drawLine(x1: number, y1: number, x2: number, y2: number, thickness: number): void {
+    let dx: number = x2 - x1;
+    let dy: number = y2 - y1;
+
+    let length = Math.hypot(dx, dy);
+    if (length === 0) return;
+
+    let perpX = (-dy / length) * (thickness / 2);
+    let perpY = (dx / length) * (thickness / 2);
+
+    this.drawTriangle(x1 + perpX, y1 + perpY, x1 - perpX, y1 - perpY, x2 + perpX, y2 + perpY);
+    this.drawTriangle(x2 + perpX, y2 + perpY, x2 - perpX, y2 - perpY, x1 - perpX, y1 - perpY);
+  }
+
+  drawCircle(x: number, y: number, radius: number): void {
+    const [r, g, b, a] = this.currentColor;
+
+    this.addVertex(x - radius, y - radius, 0, 0, r, g, b, a, 2);
+    this.addVertex(x + radius, y - radius, 1, 0, r, g, b, a, 2);
+    this.addVertex(x + radius, y + radius, 1, 1, r, g, b, a, 2);
+    this.addVertex(x - radius, y - radius, 0, 0, r, g, b, a, 2);
+    this.addVertex(x - radius, y + radius, 0, 1, r, g, b, a, 2);
+    this.addVertex(x + radius, y + radius, 1, 1, r, g, b, a, 2);
+  }
+
+  drawRect(x: number, y: number, w: number, h: number, rot?: number): void {
+    const [r, g, b, a] = this.currentColor;
+
+    this.addVertex(x, y, 0, 0, r, g, b, a, 1);
+    this.addVertex(x + w, y, 1, 0, r, g, b, a, 1);
+    this.addVertex(x + w, y + h, 1, 1, r, g, b, a, 1);
+    this.addVertex(x, y, 0, 0, r, g, b, a, 1);
+    this.addVertex(x, y + h, 0, 1, r, g, b, a, 1);
+    this.addVertex(x + w, y + h, 1, 1, r, g, b, a, 1);
+  }
+
   drawTriangle(
     x1: number,
     y1: number,
@@ -226,10 +259,35 @@ export class WebGLBackend implements Backend {
     this.addVertex(x3, y3, 0, 0, r, g, b, a, 1);
   }
 
-  resize(width: number, height: number): void {
-    this.ctx.viewport(0, 0, width, height);
-    this.ctx.uniform2f(this.shaderLocations.uniforms.resolution, width, height);
+  drawRegularPolygon(
+    x: number,
+    y: number,
+    size: number,
+    sides: number,
+    rot: number = 0
+  ): void {
+    if (sides < 3) return;
+
+    let angleStep = (Math.PI * 2) / sides;
+
+    let prevX = x + size * Math.cos(rot);
+    let prevY = y + size * Math.sin(rot);
+
+    for (let i = 1; i <= sides; i++) {
+      let angle = rot + i * angleStep;
+      let currentX = x + size * Math.cos(angle);
+      let currentY = y + size * Math.sin(angle);
+
+      this.drawTriangle(x, y, prevX, prevY, currentX, currentY);
+
+      prevX = currentX;
+      prevY = currentY;
+    }
   }
+
+  // drawPolygon(vertices: Array<[number, number]>): void {
+    
+  // }
 
   public processFrame(data: Float32Array, length: number): void {
     const driver = this as Backend;
@@ -277,11 +335,11 @@ export class WebGLBackend implements Backend {
           break;
         }
 
-        case Commands.DrawSquare: {
-          if (!driver.drawSquare) {
-            throw new Error("WebGL backend does not implement 'drawSquare()'.");
+        case Commands.DrawRect: {
+          if (!driver.drawRect) {
+            throw new Error("WebGL backend does not implement 'drawRect()'.");
           }
-          driver.drawSquare(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
+          driver.drawRect(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
           break;
         }
 
@@ -336,5 +394,10 @@ export class WebGLBackend implements Backend {
     }
 
     this.flush();
+  }
+
+  resize(width: number, height: number): void {
+    this.ctx.viewport(0, 0, width, height);
+    this.ctx.uniform2f(this.shaderLocations.uniforms.resolution, width, height);
   }
 }

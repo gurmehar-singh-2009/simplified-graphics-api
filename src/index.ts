@@ -16,6 +16,7 @@ export type { Vector2 } from "./math/vector2";
 // // For quick testing
 import { Engine } from "./core/engine";
 import { Backends } from "./core/renderer";
+import { Vector2 } from "./math/vector2";
 const canvas = document.createElement("canvas");
 document.body.appendChild(canvas);
 
@@ -36,5 +37,5 @@ engine.onFrame = (renderer, timestamp) => {
     renderer.clear(200, 200, 200, 1);
 
     renderer.setColor(255, 0, 0, 1);
-    renderer.drawTriangle(0, 0, 100, 0, 0, 100);
+    renderer.drawPolygon([new Vector2(100, 100), new Vector2(200, 100), new Vector2(300, 300), new Vector2(100, 200)]);
 };

@@ -35,8 +35,8 @@ export class RenderEvent {
 		this.commandBuffer.drawCircle(x, y, radius);
 	}
 
-	public drawSquare(x: number, y: number, w: number, h: number): void {
-		this.commandBuffer.drawSquare(x, y, w, h);
+	public drawRect(x: number, y: number, w: number, h: number): void {
+		this.commandBuffer.drawRect(x, y, w, h);
 	}
 
 	public drawTriangle(

@@ -37,7 +37,7 @@ export interface Backend {
 		y3: number,
 	): void;
 	drawCircle?(x: number, y: number, radius: number): void;
-	drawSquare?(x: number, y: number, w: number, h: number, rot?: number): void;
+	drawRect?(x: number, y: number, w: number, h: number, rot?: number): void;
 	drawRegularPolygon?(
 		x: number,
 		y: number,
