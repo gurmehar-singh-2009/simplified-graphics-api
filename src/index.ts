@@ -14,28 +14,28 @@ export type { Vector2 } from "./math/vector2";
 
 
 // // For quick testing
-import { Engine } from "./core/engine";
-import { Backends } from "./core/renderer";
-import { Vector2 } from "./math/vector2";
-const canvas = document.createElement("canvas");
-document.body.appendChild(canvas);
+// import { Engine } from "./core/engine";
+// import { Backends } from "./core/renderer";
+// import { Vector2 } from "./math/vector2";
+// const canvas = document.createElement("canvas");
+// document.body.appendChild(canvas);
 
-const engine = new Engine(canvas, {
-    backend: Backends.WEBGL,
-    antialias: false,
-});
+// const engine = new Engine(canvas, {
+//     backend: Backends.WEBGL,
+//     antialias: false,
+// });
 
-window.addEventListener("resize", () => {
-    engine.resize(window.innerWidth, window.innerHeight);
-});
+// window.addEventListener("resize", () => {
+//     engine.resize(window.innerWidth, window.innerHeight);
+// });
 
-engine.resize(window.innerWidth, window.innerHeight);
+// engine.resize(window.innerWidth, window.innerHeight);
 
-engine.start();
+// engine.start();
 
-engine.onFrame = (renderer, timestamp) => {
-    renderer.clear(200, 200, 200, 1);
+// engine.onFrame = (renderer, timestamp) => {
+//     renderer.clear(200, 200, 200, 1);
 
-    renderer.setColor(255, 0, 0, 1);
-    renderer.drawPolygon([new Vector2(100, 100), new Vector2(200, 100), new Vector2(300, 300), new Vector2(100, 200)]);
-};
+//     renderer.setColor(255, 0, 0, 1);
+//     renderer.drawCircle(100, 100, 50);
+// };
