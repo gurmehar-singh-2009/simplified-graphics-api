@@ -643,7 +643,7 @@ export class WebGPUBackend implements Backend {
 	}
 
 	/**
-	 * Decodes a binary command stream buffer into drawing calls and presents the frame.
+	 * Decodes a command buffer into drawing calls and presents the frame.
 	 */
 	public processFrame(data: Float32Array, length: number): void {
 		const driver = this as Backend;

@@ -1,4 +1,4 @@
-#version 300 es
+export const fragmentShaderSource = `#version 300 es
 
 precision highp float;
 
@@ -23,4 +23,4 @@ void main() {
         if(distSq > 0.25) discard;
         outColour = v_colour;
     }
-}
+}`

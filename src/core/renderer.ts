@@ -9,7 +9,7 @@ export enum Backends {
 export interface RenderConfigs {
 	backend: Backends;
 	antialias: boolean;
-	debug: boolean;
+	debug?: boolean;
 	// default(): RenderConfigs;
 }
 

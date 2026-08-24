@@ -24,7 +24,7 @@ export class RenderEvent {
 	}
 
 	public setColor(r: number, g: number, b: number, a: number): void {
-		this.commandBuffer.set2DColor(r, g, b, a);
+		this.commandBuffer.setColor(r, g, b, a);
 	}
 
 	public drawLine(a: Vector2, b: Vector2, thickness: number): void {

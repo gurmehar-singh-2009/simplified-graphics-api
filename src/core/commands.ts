@@ -45,7 +45,7 @@ export class CommandBuffer {
 		this.data[this.length++] = a;
 	}
 
-	public set2DColor(r: number, g: number, b: number, a: number): void {
+	public setColor(r: number, g: number, b: number, a: number): void {
 		this.ensureCapacity(5);
 		this.data[this.length++] = Commands.SetColor;
 		this.data[this.length++] = r;

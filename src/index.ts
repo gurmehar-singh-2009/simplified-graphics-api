@@ -10,3 +10,25 @@ export type { RenderEvent } from "./core/renderEvents";
 export type { Backend, RenderConfigs, Texture } from "./core/renderer";
 export { Backends } from "./core/renderer";
 export type { Vector2 } from "./math/vector2";
+
+
+
+// // For quick testing
+// import { Engine } from "./core/engine";
+// import { Backends } from "./core/renderer";
+// const canvas = document.createElement("canvas");
+// document.body.appendChild(canvas);
+
+// const engine = new Engine(canvas, {
+// 	backend: Backends.WEBGL,
+// 	antialias: false,
+// });
+
+// engine.start();
+
+// engine.onFrame = (renderer, timestamp) => {
+//     renderer.clear(200, 200, 200, 1);
+
+//     renderer.setColor(255, 0, 0, 1);
+//     renderer.drawTriangle(0, 0, 100, 0, 0, 100);
+// };

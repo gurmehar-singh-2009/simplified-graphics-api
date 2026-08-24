@@ -1,4 +1,4 @@
-#version 300 es
+export const vertexShaderSource = `#version 300 es
 
 layout(location = 0) in vec2 a_position;
 layout(location = 3) in vec2 a_texCoord;
@@ -18,4 +18,4 @@ void main() {
 
     vec2 screenSpace = ((a_position / u_resolution) * 2.0) - 1.0;
     gl_Position = vec4(screenSpace.x, -screenSpace.y, 0.0, 1.0);
-}
+}`
