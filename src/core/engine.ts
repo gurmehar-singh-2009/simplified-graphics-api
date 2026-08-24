@@ -5,7 +5,7 @@ import { RenderEvent } from "./renderEvents";
 import { type Backend, Backends, type RenderConfigs } from "./renderer";
 
 export class Engine {
-  private canvas: HTMLCanvasElement;
+	private canvas: HTMLCanvasElement;
 	private configs: RenderConfigs;
 
 	private backend: Backend;

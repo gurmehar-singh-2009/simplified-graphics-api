@@ -198,7 +198,8 @@ export class CanvasBackend implements Backend {
 					const size = data[i++]!;
 					const charCount = data[i++]!;
 					let text = "";
-					for (let c = 0; c < charCount; c++) text += String.fromCharCode(data[i++]!);
+					for (let c = 0; c < charCount; c++)
+						text += String.fromCharCode(data[i++]!);
 					driver.drawText(x, y, text, size);
 					break;
 				}

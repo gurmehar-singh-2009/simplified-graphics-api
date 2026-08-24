@@ -1,3 +1,1 @@
-export class Color {
-
-}
+export class Color {}

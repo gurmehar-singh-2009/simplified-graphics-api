@@ -1,11 +1,11 @@
 {
-  "entryPoints": ["src/index.ts"],
-  "out": "docs/api",
-  "docsRoot": "docs",
-  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
-  "readme": "none",
-  "parametersFormat": "table",
-  "propertiesFormat": "table",
-  "enumMembersFormat": "table",
-  "typeDeclarationFormat": "table"
+	"entryPoints": ["src/index.ts"],
+	"out": "docs/api",
+	"docsRoot": "docs",
+	"plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+	"readme": "none",
+	"parametersFormat": "table",
+	"propertiesFormat": "table",
+	"enumMembersFormat": "table",
+	"typeDeclarationFormat": "table"
 }
