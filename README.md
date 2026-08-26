@@ -23,7 +23,7 @@
 > [!INFO]
 > The 3D renderer only supports the `WebGL` and `WebGPU` backend.
 > <details>
-> <summary>Why not do 3D in Canvas?</summary>
+> <summary>Why not do 3D using the Canvas2D API?</summary>
 > 
 > Simply put, it makes no sense to do 3d graphics using the Canvas2d API for these reasons:
 > - Not computationally reasonable. Canvas2D is not guaranteed to be hardware optimized. It makes an attempt by doing as much optimization as it can but it can be unpredictable and we have no control over that.
