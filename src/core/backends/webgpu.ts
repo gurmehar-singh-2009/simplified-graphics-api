@@ -508,13 +508,12 @@ export class WebGPUBackend implements Backend {
     x: number,
     y: number,
     w: number,
-    h: number,
-    rot: number = 0,
+    h: number
   ): void {
     this.pushInstance({
       position: [x + w / 2, y + h / 2],
       size: [w, h],
-      rotation: rot,
+      rotation: 0,
       shape_type: 1,
     });
   }

@@ -13,6 +13,7 @@ export enum Commands {
 	DrawRegularPolygon,
 	DrawPolygon,
 	DrawText,
+	UpdateView
 }
 
 export class CommandBuffer {
@@ -132,7 +133,7 @@ export class CommandBuffer {
 		}
 	}
 
-  public drawText(x: number, y: number, text: string, size: number, alignment: number): void {
+	public drawText(x: number, y: number, text: string, size: number, alignment: number): void {
 		const charCount = text.length;
 		this.ensureCapacity(5 + charCount);
 
@@ -140,11 +141,22 @@ export class CommandBuffer {
 		this.data[this.length++] = x;
 		this.data[this.length++] = y;
 		this.data[this.length++] = size;
-    this.data[this.length++] = charCount;
-    this.data[this.length++] = alignment;
+		this.data[this.length++] = charCount;
+		this.data[this.length++] = alignment;
 
 		for (let i = 0; i < charCount; i++) {
 			this.data[this.length++] = text.charCodeAt(i);
 		}
 	}
+
+	// public updateView(x: number, y: number, text: string, size: number, alignment: number): void {
+	// 	this.ensureCapacity(17);
+
+	// 	this.data[this.length++] = Commands.UpdateView;
+	// 	this.data[this.length++] = x;
+	// 	this.data[this.length++] = y;
+	// 	this.data[this.length++] = size;
+	// 	this.data[this.length++] = charCount;
+	// 	this.data[this.length++] = alignment;
+	// }
 }

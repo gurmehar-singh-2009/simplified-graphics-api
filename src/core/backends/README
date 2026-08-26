@@ -23,11 +23,3 @@ this.ctx.fillStyle = this.clearColor;
 this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
 
-
-
-IMPORTANT:
-
-Individual drivers have been removed and replaced by a single Driver class
-Since all backends implement the same methods (most of the time), this is cleaner
-The driver simply calls a method like: Backend.drawSquare(args);
-It does not matter which type this Backend is other than in Driver.init

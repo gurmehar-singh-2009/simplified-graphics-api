@@ -13,29 +13,45 @@ export type { Vector2 } from "./math/vector2";
 
 
 
-// // For quick testing
-// import { Engine } from "./core/engine";
-// import { Backends } from "./core/renderer";
-// import { Vector2 } from "./math/vector2";
-// const canvas = document.createElement("canvas");
-// document.body.appendChild(canvas);
+// For quick testing
+import { Engine } from "./core/engine";
+import { Backends } from "./core/renderer";
+import { Vector2 } from "./math/vector2";
+const canvas = document.createElement("canvas");
+document.body.appendChild(canvas);
 
-// const engine = new Engine(canvas, {
-//     backend: Backends.WEBGL,
-//     antialias: false,
-// });
+const engine = new Engine(canvas, {
+    backend: Backends.WEBGL,
+    antialias: false,
+});
 
-// window.addEventListener("resize", () => {
-//     engine.resize(window.innerWidth, window.innerHeight);
-// });
+window.addEventListener("resize", () => {
+    engine.resize(window.innerWidth, window.innerHeight);
+});
 
-// engine.resize(window.innerWidth, window.innerHeight);
+engine.resize(window.innerWidth, window.innerHeight);
 
-// engine.start();
+engine.start();
 
-// engine.onFrame = (renderer, timestamp) => {
-//     renderer.clear(200, 200, 200, 1);
+let prev = 0;
+let seed = 0;
 
-//     renderer.setColor(255, 0, 0, 1);
-//     renderer.drawCircle(100, 100, 50);
-// };
+engine.onFrame = (renderer, timestamp) => {
+    console.log(1000 / (timestamp - prev))
+
+    renderer.clear(200, 200, 200, 1);
+
+    seed = 0;
+
+    for (let i = 0; i < 10000; i++) {
+        renderer.setColor(getRandom() * 255, getRandom() * 255, getRandom() * 255, 1);
+        renderer.drawRect(getRandom() * window.innerWidth, getRandom() * window.innerHeight, 5, 5);
+    }
+
+    prev = timestamp;
+};
+
+function getRandom() {
+    seed = (seed * 1297483264925 + 1041656891173) % 3625972984327;
+    return seed/3625972984327;
+}

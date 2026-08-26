@@ -23,9 +23,8 @@ export class WebGLBackend implements Backend {
   private vao: WebGLVertexArrayObject;
   private vertexBuffer: WebGLBuffer;
 
-  // TODO: Implement dynamic vbo sizing
   private floatsPerVertex: number = 9;
-  private maxVertices: number = 10000;
+  private verticiesPerBatch: number = 30000;
 
   private batchData: Float32Array;
   private batchOffset: number;
@@ -56,7 +55,7 @@ export class WebGLBackend implements Backend {
 
     this.ctx.bufferData(
       this.ctx.ARRAY_BUFFER,
-      this.floatsPerVertex * this.maxVertices * 4,
+      this.floatsPerVertex * this.verticiesPerBatch * 4,
       this.ctx.DYNAMIC_DRAW,
     );
 
@@ -104,7 +103,7 @@ export class WebGLBackend implements Backend {
 
     this.ctx.bindVertexArray(null);
 
-    this.batchData = new Float32Array(this.maxVertices * this.floatsPerVertex);
+    this.batchData = new Float32Array(this.verticiesPerBatch * this.floatsPerVertex);
     this.batchOffset = 0;
 
     this.resize(500, 500);
@@ -157,6 +156,8 @@ export class WebGLBackend implements Backend {
   }
 
   private flush() {
+    if (this.batchOffset === 0) return;
+
     this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, this.vertexBuffer);
 
     this.ctx.bufferSubData(
@@ -185,6 +186,10 @@ export class WebGLBackend implements Backend {
     a: number,
     type: number,
   ) {
+    if (this.batchOffset + this.floatsPerVertex > this.batchData.length) {
+      this.flush();
+    }
+
     this.batchData[this.batchOffset++] = x;
     this.batchData[this.batchOffset++] = y;
 
@@ -233,7 +238,7 @@ export class WebGLBackend implements Backend {
     this.addVertex(x + radius, y + radius, 1, 1, r, g, b, a, 2);
   }
 
-  drawRect(x: number, y: number, w: number, h: number, rot?: number): void {
+  drawRect(x: number, y: number, w: number, h: number): void {
     const [r, g, b, a] = this.currentColor;
 
     this.addVertex(x, y, 0, 0, r, g, b, a, 1);
@@ -286,7 +291,7 @@ export class WebGLBackend implements Backend {
   }
 
   // drawPolygon(vertices: Array<[number, number]>): void {
-    
+
   // }
 
   public processFrame(data: Float32Array, length: number): void {
