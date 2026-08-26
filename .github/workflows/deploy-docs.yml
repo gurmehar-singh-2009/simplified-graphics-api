@@ -35,13 +35,16 @@ jobs:
       - name: Build minified dist script
         run: bun run build
 
-      - name: Commit dist folder to repo
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "build: update dist [skip ci]"
-          file_pattern: "dist/*"
-          add_options: "--force"
+      - name: Build minified dist script
+        run: bun run build
 
+      - name: Commit dist folder to repo
+        run: |
+          git config local user.name "github-actions[bot]"
+          git config local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f dist
+          git diff --staged --quiet || (git commit -m "build: update dist [skip ci]" && git push)
+          
       - name: Build documentation
         run: bun run docs:build
 
