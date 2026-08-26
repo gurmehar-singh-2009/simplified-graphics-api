@@ -17,6 +17,10 @@ export type { Vector2 } from "./math/vector2";
 import { Engine } from "./core/engine";
 import { Backends } from "./core/renderer";
 import { Vector2 } from "./math/vector2";
+import { PerspectiveCamera, OrthographicCamera } from "./core/camera";
+import { Vector3 } from "./math/vector3";
+import { Quaternion } from "./math/quaternion";
+
 const canvas = document.createElement("canvas");
 document.body.appendChild(canvas);
 
@@ -33,25 +37,21 @@ engine.resize(window.innerWidth, window.innerHeight);
 
 engine.start();
 
+let cam = new OrthographicCamera(1920, 16 / 9, -1, 1, new Vector3(0, 0, 0));
+
 let prev = 0;
-let seed = 0;
 
 engine.onFrame = (renderer, timestamp) => {
     console.log(1000 / (timestamp - prev))
+    renderer.setCamera(cam);
 
     renderer.clear(200, 200, 200, 1);
 
-    seed = 0;
+    renderer.setColor(255, 0, 0, 1);
+    renderer.drawRect(0, 0, 50, 50);
 
-    for (let i = 0; i < 10000; i++) {
-        renderer.setColor(getRandom() * 255, getRandom() * 255, getRandom() * 255, 1);
-        renderer.drawRect(getRandom() * window.innerWidth, getRandom() * window.innerHeight, 5, 5);
-    }
+    renderer.setColor(0, 0, 255, 1);
+    renderer.drawRect(-50, -50, 50, 50);
 
     prev = timestamp;
 };
-
-function getRandom() {
-    seed = (seed * 1297483264925 + 1041656891173) % 3625972984327;
-    return seed/3625972984327;
-}

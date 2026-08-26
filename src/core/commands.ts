@@ -1,4 +1,6 @@
+import type { Matrix4 } from "../math/matrix";
 import type { Vector2 } from "../math/vector2";
+import type { Camera } from "./camera";
 
 // Only the most essential commands are implemented in backend.
 // Other user facing methods like drawPentagon are handled in RenderEvent.
@@ -149,14 +151,14 @@ export class CommandBuffer {
 		}
 	}
 
-	// public updateView(x: number, y: number, text: string, size: number, alignment: number): void {
-	// 	this.ensureCapacity(17);
+	public updateView(camera: Camera): void {
+		let matrixData = camera.viewProjectionMatrix.data;
+		this.ensureCapacity(matrixData.length+1);
 
-	// 	this.data[this.length++] = Commands.UpdateView;
-	// 	this.data[this.length++] = x;
-	// 	this.data[this.length++] = y;
-	// 	this.data[this.length++] = size;
-	// 	this.data[this.length++] = charCount;
-	// 	this.data[this.length++] = alignment;
-	// }
+		this.data[this.length++] = Commands.UpdateView;
+
+		for (let i = 0; i < matrixData.length; i++) {
+			this.data[this.length++] = matrixData[i]!;
+		}
+	}
 }

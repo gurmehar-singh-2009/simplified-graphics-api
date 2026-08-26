@@ -13,41 +13,71 @@ export class Quaternion {
         this.w = w;
     }
 
-    static identity(): Quaternion {
-        return new Quaternion(0, 0, 0, 1);
-    }
-
-    static fromAxisAngle(axis: Vector3, angle: number): Quaternion {
-        let halfAngle = angle / 2;
-        let sinVal = Math.sin(halfAngle);
-        return new Quaternion(axis.x * sinVal, axis.y * sinVal, axis.z * sinVal, Math.cos(halfAngle));
-    }
-
-    magnitude(): number {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-    }
-
-    normalize(): Quaternion {
-        let mag = this.magnitude();
-        if (mag === 0) {
-            return new Quaternion(0, 0, 0, 0);
-        } else {
-            return new Quaternion(this.x / mag, this.y / mag, this.z / mag, this.w / mag);
-        }
-    }
-
-    multiply(q: Quaternion): void {
-        const x = this.w * q.x + this.x * q.w + this.y * q.z - this.z * q.y;
-        const y = this.w * q.y - this.x * q.z + this.y * q.w + this.z * q.x;
-        const z = this.w * q.z + this.x * q.y - this.y * q.x + this.z * q.w;
-        const w = this.w * q.w - this.x * q.x - this.y * q.y - this.z * q.z;
+    public set(x: number, y: number, z: number, w: number): this {
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
+        return this;
     }
 
-    conjugate(): Quaternion {
-        return new Quaternion(-this.x, -this.y, -this.z, this.w);
+    public copy(q: Quaternion): this {
+        return this.set(q.x, q.y, q.z, q.w);
+    }
+
+    public identity(): this {
+        return this.set(0, 0, 0, 1);
+    }
+
+    public static identity(out: Quaternion = new Quaternion()): Quaternion {
+        return out.set(0, 0, 0, 1);
+    }
+
+    public static fromAxisAngle(axis: Vector3, angle: number, out: Quaternion = new Quaternion()): Quaternion {
+        const halfAngle = angle * 0.5;
+        const sinVal = Math.sin(halfAngle);
+        return out.set(
+            axis.x * sinVal,
+            axis.y * sinVal,
+            axis.z * sinVal,
+            Math.cos(halfAngle)
+        );
+    }
+
+    public magnitudeSquared(): number {
+        return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
+    }
+
+    public magnitude(): number {
+        return Math.sqrt(this.magnitudeSquared());
+    }
+
+    public normalize(out: Quaternion = this): Quaternion {
+        const sqrMag = this.magnitudeSquared();
+        if (sqrMag === 0) {
+            return out.set(0, 0, 0, 1);
+        }
+        const invMag = 1.0 / Math.sqrt(sqrMag);
+        return out.set(this.x * invMag, this.y * invMag, this.z * invMag, this.w * invMag);
+    }
+
+    public static multiply(a: Quaternion, b: Quaternion, out: Quaternion = new Quaternion()): Quaternion {
+        const ax = a.x, ay = a.y, az = a.z, aw = a.w;
+        const bx = b.x, by = b.y, bz = b.z, bw = b.w;
+
+        return out.set(
+            aw * bx + ax * bw + ay * bz - az * by,
+            aw * by - ax * bz + ay * bw + az * bx,
+            aw * bz + ax * by - ay * bx + az * bw,
+            aw * bw - ax * bx - ay * by - az * bz
+        );
+    }
+
+    public multiply(q: Quaternion): this {
+        return Quaternion.multiply(this, q, this) as this;
+    }
+
+    public conjugate(out: Quaternion = this): Quaternion {
+        return out.set(-this.x, -this.y, -this.z, this.w);
     }
 }

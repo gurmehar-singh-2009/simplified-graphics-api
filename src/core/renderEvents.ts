@@ -6,6 +6,7 @@
 // essentially, this is what they get as the callback param to do stuff with
 
 import type { Vector2 } from "../math/vector2";
+import type { Camera } from "./camera";
 import { CommandBuffer } from "./commands";
 
 export class RenderEvent {
@@ -83,5 +84,9 @@ export class RenderEvent {
 
 	public drawText(x: number, y: number, text: string, size: number, alignment: number): void {
 		this.commandBuffer.drawText(x, y, text, size, alignment);
+	}
+
+	public setCamera(camera: Camera) {
+		this.commandBuffer.updateView(camera);
 	}
 }

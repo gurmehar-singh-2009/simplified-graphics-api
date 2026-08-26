@@ -12,7 +12,7 @@ interface ShaderLocations {
     type: GLint;
   };
   uniforms: {
-    resolution: WebGLUniformLocation;
+    viewProjection: WebGLUniformLocation;
   };
 }
 
@@ -23,13 +23,14 @@ export class WebGLBackend implements Backend {
   private vao: WebGLVertexArrayObject;
   private vertexBuffer: WebGLBuffer;
 
-  private floatsPerVertex: number = 9;
-  private verticiesPerBatch: number = 30000;
+  private floatsPerVertex: number = 10;
+  private trianglesPerBatch: number = 10000;
 
   private batchData: Float32Array;
   private batchOffset: number;
 
   private currentColor: [number, number, number, number] = [1, 0, 0, 1];
+  private viewProjectionMatrix: Float32Array = new Float32Array(16);
 
   constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
     this.configs = configs;
@@ -55,7 +56,7 @@ export class WebGLBackend implements Backend {
 
     this.ctx.bufferData(
       this.ctx.ARRAY_BUFFER,
-      this.floatsPerVertex * this.verticiesPerBatch * 4,
+      this.floatsPerVertex * this.trianglesPerBatch * 3 * 4,
       this.ctx.DYNAMIC_DRAW,
     );
 
@@ -64,7 +65,7 @@ export class WebGLBackend implements Backend {
     this.ctx.enableVertexAttribArray(this.shaderLocations.attributes.position);
     this.ctx.vertexAttribPointer(
       this.shaderLocations.attributes.position,
-      2,
+      3,
       this.ctx.FLOAT,
       false,
       STRIDE,
@@ -78,7 +79,7 @@ export class WebGLBackend implements Backend {
       this.ctx.FLOAT,
       false,
       STRIDE,
-      8,
+      12,
     );
 
     this.ctx.enableVertexAttribArray(this.shaderLocations.attributes.colour);
@@ -88,7 +89,7 @@ export class WebGLBackend implements Backend {
       this.ctx.FLOAT,
       false,
       STRIDE,
-      16,
+      20,
     );
 
     this.ctx.enableVertexAttribArray(this.shaderLocations.attributes.type);
@@ -98,12 +99,12 @@ export class WebGLBackend implements Backend {
       this.ctx.FLOAT,
       false,
       STRIDE,
-      32,
+      36,
     );
 
     this.ctx.bindVertexArray(null);
 
-    this.batchData = new Float32Array(this.verticiesPerBatch * this.floatsPerVertex);
+    this.batchData = new Float32Array(this.trianglesPerBatch * 3 * this.floatsPerVertex);
     this.batchOffset = 0;
 
     this.resize(500, 500);
@@ -133,11 +134,11 @@ export class WebGLBackend implements Backend {
         position: this.ctx.getAttribLocation(program, "a_position"),
         texCoord: this.ctx.getAttribLocation(program, "a_texCoord"),
         colour: this.ctx.getAttribLocation(program, "a_colour"),
-        type: this.ctx.getAttribLocation(program, "a_type"),
+        type: this.ctx.getAttribLocation(program, "a_type")
       },
 
       uniforms: {
-        resolution: this.ctx.getUniformLocation(program, "u_resolution")!,
+        viewProjection: this.ctx.getUniformLocation(program, "u_viewProjection")!
       },
     };
   }
@@ -168,7 +169,7 @@ export class WebGLBackend implements Backend {
       this.batchOffset,
     );
     this.ctx.bindVertexArray(this.vao);
-    this.ctx.drawArrays(this.ctx.TRIANGLES, 0, this.batchOffset / 9);
+    this.ctx.drawArrays(this.ctx.TRIANGLES, 0, this.batchOffset / this.floatsPerVertex);
 
     this.ctx.bindVertexArray(null);
 
@@ -178,6 +179,7 @@ export class WebGLBackend implements Backend {
   private addVertex(
     x: number,
     y: number,
+    z: number = 0,
     u: number,
     v: number,
     r: number,
@@ -192,6 +194,7 @@ export class WebGLBackend implements Backend {
 
     this.batchData[this.batchOffset++] = x;
     this.batchData[this.batchOffset++] = y;
+    this.batchData[this.batchOffset++] = z;
 
     this.batchData[this.batchOffset++] = u;
     this.batchData[this.batchOffset++] = v;
@@ -205,6 +208,7 @@ export class WebGLBackend implements Backend {
   }
 
   clear(r: number, g: number, b: number, a: number): void {
+    this.flush();
     this.ctx.clearColor(r / 255, g / 255, b / 255, a);
     this.ctx.clear(this.ctx.COLOR_BUFFER_BIT);
   }
@@ -230,23 +234,23 @@ export class WebGLBackend implements Backend {
   drawCircle(x: number, y: number, radius: number): void {
     const [r, g, b, a] = this.currentColor;
 
-    this.addVertex(x - radius, y - radius, 0, 0, r, g, b, a, 2);
-    this.addVertex(x + radius, y - radius, 1, 0, r, g, b, a, 2);
-    this.addVertex(x + radius, y + radius, 1, 1, r, g, b, a, 2);
-    this.addVertex(x - radius, y - radius, 0, 0, r, g, b, a, 2);
-    this.addVertex(x - radius, y + radius, 0, 1, r, g, b, a, 2);
-    this.addVertex(x + radius, y + radius, 1, 1, r, g, b, a, 2);
+    this.addVertex(x - radius, y - radius, 0, 0, 0, r, g, b, a, 2);
+    this.addVertex(x + radius, y - radius, 0, 1, 0, r, g, b, a, 2);
+    this.addVertex(x + radius, y + radius, 0, 1, 1, r, g, b, a, 2);
+    this.addVertex(x - radius, y - radius, 0, 0, 0, r, g, b, a, 2);
+    this.addVertex(x - radius, y + radius, 0, 0, 1, r, g, b, a, 2);
+    this.addVertex(x + radius, y + radius, 0, 1, 1, r, g, b, a, 2);
   }
 
   drawRect(x: number, y: number, w: number, h: number): void {
     const [r, g, b, a] = this.currentColor;
 
-    this.addVertex(x, y, 0, 0, r, g, b, a, 1);
-    this.addVertex(x + w, y, 1, 0, r, g, b, a, 1);
-    this.addVertex(x + w, y + h, 1, 1, r, g, b, a, 1);
-    this.addVertex(x, y, 0, 0, r, g, b, a, 1);
-    this.addVertex(x, y + h, 0, 1, r, g, b, a, 1);
-    this.addVertex(x + w, y + h, 1, 1, r, g, b, a, 1);
+    this.addVertex(x, y, 0, 0, 0, r, g, b, a, 1);
+    this.addVertex(x + w, y, 0, 1, 0, r, g, b, a, 1);
+    this.addVertex(x + w, y + h, 0, 1, 1, r, g, b, a, 1);
+    this.addVertex(x, y, 0, 0, 0, r, g, b, a, 1);
+    this.addVertex(x, y + h, 0, 0, 1, r, g, b, a, 1);
+    this.addVertex(x + w, y + h, 0, 1, 1, r, g, b, a, 1);
   }
 
   drawTriangle(
@@ -259,9 +263,9 @@ export class WebGLBackend implements Backend {
   ): void {
     const [r, g, b, a] = this.currentColor;
 
-    this.addVertex(x1, y1, 0, 0, r, g, b, a, 1);
-    this.addVertex(x2, y2, 0, 0, r, g, b, a, 1);
-    this.addVertex(x3, y3, 0, 0, r, g, b, a, 1);
+    this.addVertex(x1, y1, 0, 0, 0, r, g, b, a, 1);
+    this.addVertex(x2, y2, 0, 0, 0, r, g, b, a, 1);
+    this.addVertex(x3, y3, 0, 0, 0, r, g, b, a, 1);
   }
 
   drawRegularPolygon(
@@ -293,6 +297,11 @@ export class WebGLBackend implements Backend {
   // drawPolygon(vertices: Array<[number, number]>): void {
 
   // }
+
+  public updateView(): void {
+    this.flush();
+    this.ctx.uniformMatrix4fv(this.shaderLocations.uniforms.viewProjection, false, this.viewProjectionMatrix);
+  }
 
   public processFrame(data: Float32Array, length: number): void {
     const driver = this as Backend;
@@ -395,6 +404,19 @@ export class WebGLBackend implements Backend {
           driver.drawPolygon(vertices);
           break;
         }
+
+        case Commands.UpdateView: {
+          if (!driver.updateView) {
+            throw new Error(
+              "WebGL backend does not implement 'updateView()'.",
+            );
+          }
+          for (let j = 0; j < 16; j++) {
+            this.viewProjectionMatrix[j] = data[i++]!;
+          }
+          driver.updateView();
+          break;
+        }
       }
     }
 
@@ -403,6 +425,5 @@ export class WebGLBackend implements Backend {
 
   resize(width: number, height: number): void {
     this.ctx.viewport(0, 0, width, height);
-    this.ctx.uniform2f(this.shaderLocations.uniforms.resolution, width, height);
   }
 }
