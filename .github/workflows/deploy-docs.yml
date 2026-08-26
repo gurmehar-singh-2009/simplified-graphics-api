@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -35,11 +35,11 @@ jobs:
       - name: Build minified dist script
         run: bun run build
 
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
+      - name: Commit dist folder to repo
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          name: dist
-          path: dist/
+          commit_message: "update dist [skip ci]"
+          file_pattern: "dist/*"
 
       - name: Build documentation
         run: bun run docs:build
