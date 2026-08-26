@@ -20,8 +20,7 @@
 > [!NOTE]
 > **Library is in active development.** Core systems are currently being written and will change without warning.
 
----
-> [!INFO]
+> [!IMPORTANT]
 > The 3D renderer only supports the `WebGL` and `WebGPU` backend.
 > <details>
 > <summary>Why not do 3D using the Canvas2D API?</summary>
