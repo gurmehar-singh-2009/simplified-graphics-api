@@ -38,8 +38,9 @@ jobs:
       - name: Commit dist folder to repo
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "update dist [skip ci]"
+          commit_message: "build: update dist [skip ci]"
           file_pattern: "dist/*"
+          add_options: "--force"
 
       - name: Build documentation
         run: bun run docs:build
