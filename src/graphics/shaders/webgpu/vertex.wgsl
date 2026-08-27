@@ -1,6 +1,6 @@
 struct CameraUniform {
     view_proj: mat4x4<f32>,
-    camera_pos: vec2<f32>,
+    camera_pos: vec3<f32>,
     zoom: f32,
     aspect_ratio: f32,
 };
@@ -9,7 +9,7 @@ struct CameraUniform {
 var<uniform> camera: CameraUniform;
 
 struct InstanceInput {
-    @location(0) pos: vec2<f32>,
+    @location(0) pos: vec3<f32>,
     @location(1) size: vec2<f32>,
     @location(2) rotation: f32,
     @location(3) shape_type: u32,
@@ -48,21 +48,17 @@ fn vs_main(
     instance: InstanceInput,
 ) -> VertexOutput {
     var out: VertexOutput;
-
     let local_position = QUAD_VERTICES[vertex_index];
-
     let cos_r = cos(instance.rotation);
     let sin_r = sin(instance.rotation);
-
     let rot_mat = mat2x2<f32>(cos_r, sin_r, -sin_r, cos_r);
-
     let local_scaled = local_position * (instance.size * 0.5);
     let rotated_pos = rot_mat * local_scaled;
-    let world_pos = instance.pos + rotated_pos;
+    let world_pos_2d = instance.pos.xy + rotated_pos;
 
-    out.clip_position = camera.view_proj * vec4<f32>(world_pos, 0.0, 1.0);
+    out.clip_position = camera.view_proj * vec4<f32>(world_pos_2d, instance.pos.z, 1.0);
     out.uv = local_position;
-    out.world_pos = world_pos;
+    out.world_pos = world_pos_2d;
     out.shape_type = instance.shape_type;
     out.sides = instance.sides;
     out.fill_color = instance.fill_color;

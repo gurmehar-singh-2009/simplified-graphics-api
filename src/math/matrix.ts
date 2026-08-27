@@ -192,19 +192,24 @@ export class Matrix<N extends number, M extends number> {
 	}
 }
 
-
-
 // Mostly static for projection matrices.
 export class Matrix4 {
 	// Faster to use Float32Array.
 	// TODO Update above implementation to use Float32Array.
 	public data = new Float32Array(16);
 
-	constructor(elements: Float32Array | number[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]) {
+	constructor(
+		elements: Float32Array | number[] = [
+			1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+		],
+	) {
 		this.data.set(elements);
 	}
 
-	public static fromQuaternion(q: Quaternion, out: Matrix4 = new Matrix4()): Matrix4 {
+	public static fromQuaternion(
+		q: Quaternion,
+		out: Matrix4 = new Matrix4(),
+	): Matrix4 {
 		q.normalize();
 
 		const x = q.x;
@@ -289,21 +294,49 @@ export class Matrix4 {
 		return out;
 	}
 
-	public static multiply(a: Matrix4, b: Matrix4, out: Matrix4 = new Matrix4()): Matrix4 {
+	public static multiply(
+		a: Matrix4,
+		b: Matrix4,
+		out: Matrix4 = new Matrix4(),
+	): Matrix4 {
 		let outData = out.data;
 
 		const aData = a.data;
 		const bData = b.data;
 
-		const a00 = aData[0]!, a01 = aData[1]!, a02 = aData[2]!, a03 = aData[3]!;
-		const a10 = aData[4]!, a11 = aData[5]!, a12 = aData[6]!, a13 = aData[7]!;
-		const a20 = aData[8]!, a21 = aData[9]!, a22 = aData[10]!, a23 = aData[11]!;
-		const a30 = aData[12]!, a31 = aData[13]!, a32 = aData[14]!, a33 = aData[15]!;
+		const a00 = aData[0]!,
+			a01 = aData[1]!,
+			a02 = aData[2]!,
+			a03 = aData[3]!;
+		const a10 = aData[4]!,
+			a11 = aData[5]!,
+			a12 = aData[6]!,
+			a13 = aData[7]!;
+		const a20 = aData[8]!,
+			a21 = aData[9]!,
+			a22 = aData[10]!,
+			a23 = aData[11]!;
+		const a30 = aData[12]!,
+			a31 = aData[13]!,
+			a32 = aData[14]!,
+			a33 = aData[15]!;
 
-		const b00 = bData[0]!, b01 = bData[1]!, b02 = bData[2]!, b03 = bData[3]!;
-		const b10 = bData[4]!, b11 = bData[5]!, b12 = bData[6]!, b13 = bData[7]!;
-		const b20 = bData[8]!, b21 = bData[9]!, b22 = bData[10]!, b23 = bData[11]!;
-		const b30 = bData[12]!, b31 = bData[13]!, b32 = bData[14]!, b33 = bData[15]!;
+		const b00 = bData[0]!,
+			b01 = bData[1]!,
+			b02 = bData[2]!,
+			b03 = bData[3]!;
+		const b10 = bData[4]!,
+			b11 = bData[5]!,
+			b12 = bData[6]!,
+			b13 = bData[7]!;
+		const b20 = bData[8]!,
+			b21 = bData[9]!,
+			b22 = bData[10]!,
+			b23 = bData[11]!;
+		const b30 = bData[12]!,
+			b31 = bData[13]!,
+			b32 = bData[14]!,
+			b33 = bData[15]!;
 
 		// Column 0
 		outData[0] = a00 * b00 + a10 * b01 + a20 * b02 + a30 * b03;
@@ -332,7 +365,13 @@ export class Matrix4 {
 		return out;
 	}
 
-	public static getPerspectiveMatrix(fov: number, aspectRatio: number, near: number, far: number, out: Matrix4 = new Matrix4()): Matrix4 {
+	public static getPerspectiveMatrix(
+		fov: number,
+		aspectRatio: number,
+		near: number,
+		far: number,
+		out: Matrix4 = new Matrix4(),
+	): Matrix4 {
 		if (near <= 0 || near === far) {
 			console.warn("Invalid near/far values.");
 			return out;
@@ -364,13 +403,21 @@ export class Matrix4 {
 		// Column 3
 		outData[12] = 0;
 		outData[13] = 0;
-		outData[14] = (2 * far * near) * rangeInverse;
+		outData[14] = 2 * far * near * rangeInverse;
 		outData[15] = 0;
 
 		return out;
 	}
 
-	public static getOrthographicMatrix(left: number, right: number, bottom: number, top: number, near: number = -1, far: number = 1, out: Matrix4 = new Matrix4()): Matrix4 {
+	public static getOrthographicMatrix(
+		left: number,
+		right: number,
+		bottom: number,
+		top: number,
+		near: number = -1,
+		far: number = 1,
+		out: Matrix4 = new Matrix4(),
+	): Matrix4 {
 		if (left === right) {
 			console.warn("Invalid left/right values.");
 			return out;

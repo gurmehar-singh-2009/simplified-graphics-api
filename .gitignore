@@ -6,6 +6,8 @@ out
 dist
 *.tgz
 
+docs/public/
+
 docs/api/
 docs/.vitepress/dist/
 docs/.vitepress/cache/

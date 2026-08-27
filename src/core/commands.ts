@@ -1,6 +1,8 @@
 import type { Matrix4 } from "../math/matrix";
 import type { Vector2 } from "../math/vector2";
 import type { Camera } from "./camera";
+import { Vector3 } from "../math/vector3";
+import { Quaternion } from "../math/quaternion";
 
 // Only the most essential commands are implemented in backend.
 // Other user facing methods like drawPentagon are handled in RenderEvent.
@@ -15,7 +17,9 @@ export enum Commands {
 	DrawRegularPolygon,
 	DrawPolygon,
 	DrawText,
-	UpdateView
+	UpdateView,
+	SetDepth,
+	DrawMesh,
 }
 
 export class CommandBuffer {
@@ -135,7 +139,13 @@ export class CommandBuffer {
 		}
 	}
 
-	public drawText(x: number, y: number, text: string, size: number, alignment: number): void {
+	public drawText(
+		x: number,
+		y: number,
+		text: string,
+		size: number,
+		alignment: number,
+	): void {
 		const charCount = text.length;
 		this.ensureCapacity(5 + charCount);
 
@@ -151,14 +161,56 @@ export class CommandBuffer {
 		}
 	}
 
+	// public updateView(camera: Camera): void {
+	// 	let matrixData = camera.viewProjectionMatrix.data;
+	// 	this.ensureCapacity(matrixData.length + 1);
+
+	// 	this.data[this.length++] = Commands.UpdateView;
+
+	// 	for (let i = 0; i < matrixData.length; i++) {
+	// 		this.data[this.length++] = matrixData[i]!;
+	// 	}
+	// }
+
+	public setDepth(z: number): void {
+		this.ensureCapacity(2);
+		this.data[this.length++] = Commands.SetDepth;
+		this.data[this.length++] = z;
+	}
+
+	public drawMesh(
+		meshId: number,
+		position: Vector3,
+		rotation: Quaternion,
+		scale: Vector3,
+	): void {
+		this.ensureCapacity(12);
+		this.data[this.length++] = Commands.DrawMesh;
+		this.data[this.length++] = meshId;
+		this.data[this.length++] = position.x;
+		this.data[this.length++] = position.y;
+		this.data[this.length++] = position.z;
+		this.data[this.length++] = rotation.x;
+		this.data[this.length++] = rotation.y;
+		this.data[this.length++] = rotation.z;
+		this.data[this.length++] = rotation.w;
+		this.data[this.length++] = scale.x;
+		this.data[this.length++] = scale.y;
+		this.data[this.length++] = scale.z;
+	}
+
 	public updateView(camera: Camera): void {
-		let matrixData = camera.viewProjectionMatrix.data;
-		this.ensureCapacity(matrixData.length+1);
+		const matrixData = camera.viewProjectionMatrix.data;
+		this.ensureCapacity(matrixData.length + 4);
 
 		this.data[this.length++] = Commands.UpdateView;
-
 		for (let i = 0; i < matrixData.length; i++) {
 			this.data[this.length++] = matrixData[i]!;
 		}
+
+		// need this
+		this.data[this.length++] = camera.position.x;
+		this.data[this.length++] = camera.position.y;
+		this.data[this.length++] = camera.position.z;
 	}
 }

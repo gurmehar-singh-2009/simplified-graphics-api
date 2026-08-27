@@ -17,4 +17,4 @@ void main() {
     v_type = a_type;
 
     gl_Position = u_viewProjection * vec4(a_position, 1.0);
-}`
+}`;

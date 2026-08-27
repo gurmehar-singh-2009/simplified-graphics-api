@@ -19,7 +19,20 @@ export default defineConfig({
 			{
 				text: "API Reference",
 				items: typedocSidebar,
-			},
+      },
+      {
+        text: "Examples",
+        items: [
+          {
+            text: "basic 2d",
+            link: "/examples/basic.html"
+          },
+          {
+            text: "basic 3d",
+            link: "/examples/3d.html"
+          }
+        ]
+      }
 		],
 	},
 });

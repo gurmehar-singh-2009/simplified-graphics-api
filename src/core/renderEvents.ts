@@ -8,6 +8,8 @@
 import type { Vector2 } from "../math/vector2";
 import type { Camera } from "./camera";
 import { CommandBuffer } from "./commands";
+import { Vector3 } from "../math/vector3";
+import { Quaternion } from "../math/quaternion";
 
 export class RenderEvent {
 	public commandBuffer: CommandBuffer;
@@ -82,11 +84,30 @@ export class RenderEvent {
 		this.commandBuffer.drawRegularPolygon(x, y, size, 8, rot);
 	}
 
-	public drawText(x: number, y: number, text: string, size: number, alignment: number): void {
+	public drawText(
+		x: number,
+		y: number,
+		text: string,
+		size: number,
+		alignment: number,
+	): void {
 		this.commandBuffer.drawText(x, y, text, size, alignment);
 	}
 
 	public setCamera(camera: Camera) {
 		this.commandBuffer.updateView(camera);
+	}
+
+	public setDepth(z: number): void {
+		this.commandBuffer.setDepth(z);
+	}
+
+	public drawMesh(
+		meshId: number,
+		position: Vector3,
+		rotation: Quaternion = Quaternion.identity(),
+		scale: Vector3 = new Vector3(1, 1, 1),
+	): void {
+		this.commandBuffer.drawMesh(meshId, position, rotation, scale);
 	}
 }

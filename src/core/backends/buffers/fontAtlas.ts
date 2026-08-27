@@ -20,13 +20,13 @@ export class FontAtlas {
 		font = "sans-serif",
 		baseSize = 256,
 		charset = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
-    atlasSize = 2048,
+		atlasSize = 2048,
 	) {
 		this.baseSize = baseSize;
 		this.canvas = new OffscreenCanvas(atlasSize, atlasSize);
 		const ctx = this.canvas.getContext("2d")!;
-    ctx.font = `${baseSize}px ${font}`;
-    ctx.textAlign = "left";
+		ctx.font = `${baseSize}px ${font}`;
+		ctx.textAlign = "left";
 		ctx.textBaseline = "top";
 		ctx.fillStyle = "white";
 

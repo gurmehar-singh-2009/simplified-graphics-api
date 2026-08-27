@@ -1,3 +1,4 @@
+import type { MeshData } from "../graphics/mesh";
 import { Vector2 } from "./vector2";
 import type { Vector3 } from "./vector3";
 
@@ -61,4 +62,42 @@ export function computeViewProjMatrix(
 		0,
 		1,
 	]);
+}
+
+// stole this
+// add credit later
+export function computeFlatNormals(mesh: MeshData): Float32Array {
+	const positions = mesh.positions;
+	const normals = new Float32Array(positions.length);
+	const index = mesh.indices;
+	const triCount = index ? index.length / 3 : positions.length / 9;
+
+	for (let t = 0; t < triCount; t++) {
+		const i0 = (index ? index[t * 3]! : t * 3) * 3;
+		const i1 = (index ? index[t * 3 + 1]! : t * 3 + 1) * 3;
+		const i2 = (index ? index[t * 3 + 2]! : t * 3 + 2) * 3;
+
+		const e1x = positions[i1]! - positions[i0]!;
+		const e1y = positions[i1 + 1]! - positions[i0 + 1]!;
+		const e1z = positions[i1 + 2]! - positions[i0 + 2]!;
+		const e2x = positions[i2]! - positions[i0]!;
+		const e2y = positions[i2 + 1]! - positions[i0 + 1]!;
+		const e2z = positions[i2 + 2]! - positions[i0 + 2]!;
+
+		let nx = e1y * e2z - e1z * e2y;
+		let ny = e1z * e2x - e1x * e2z;
+		let nz = e1x * e2y - e1y * e2x;
+		const len = Math.hypot(nx, ny, nz) || 1;
+		nx /= len;
+		ny /= len;
+		nz /= len;
+
+		for (const i of [i0, i1, i2]) {
+			normals[i] = nx;
+			normals[i + 1] = ny;
+			normals[i + 2] = nz;
+		}
+	}
+
+	return normals;
 }

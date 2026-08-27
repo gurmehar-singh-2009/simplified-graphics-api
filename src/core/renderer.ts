@@ -1,3 +1,5 @@
+import type { MeshData } from "../graphics/mesh";
+
 export type Dimension = "2D" | "3D";
 
 export enum Backends {
@@ -47,8 +49,16 @@ export interface Backend {
 	): void;
 	drawPolygon?(vertices: Array<[number, number]>): void;
 	resize?(width: number, height: number): void;
-	drawText?(x: number, y: number, text: string, size: number, alignment: number): void;
+	drawText?(
+		x: number,
+		y: number,
+		text: string,
+		size: number,
+		alignment: number,
+	): void;
 	updateView?(): void;
+	setDepth?(z: number): void;
+	createMesh?(id: number, mesh: MeshData): void;
 
 	processFrame(data: Float32Array, length: number): void;
 }
