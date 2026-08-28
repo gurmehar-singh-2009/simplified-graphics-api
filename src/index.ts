@@ -37,13 +37,12 @@ engine.resize(window.innerWidth, window.innerHeight);
 
 engine.start();
 
-let cam = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000, new Vector3(-100, 0, -100), Quaternion.fromAxisAngle(new Vector3(0, 1, 0), Math.PI/4));
+let cam = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000, new Vector3(0, 0, 100));
+engine.setCamera(cam);
 
 let prev = 0;
 
 engine.onFrame = (renderer, timestamp) => {
-    renderer.setCamera(cam);
-
     renderer.clear(200, 200, 200, 1);
 
     renderer.setColor(255, 0, 0, 1);

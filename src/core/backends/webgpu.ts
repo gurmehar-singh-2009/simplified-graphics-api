@@ -1,7 +1,7 @@
 import fs_source from "../../graphics/shaders/webgpu/fragment.wgsl" with { type: "text" };
 import vs_source from "../../graphics/shaders/webgpu/vertex.wgsl" with { type: "text" };
 import { computeViewProjMatrix } from "../../math/util";
-import { Commands } from "../commands";
+import type { Vector2 } from "../../math/vector2";
 import type { Backend, RenderConfigs } from "../renderer";
 import { CameraUniform } from "./buffers/cameraBuffer";
 import { EntityInstance } from "./buffers/entityInstance";
@@ -425,10 +425,10 @@ export class WebGPUBackend implements Backend {
   /**
    * Sets local camera target position and zoom level.
    */
-  public setCamera(pos: [number, number], zoom: number): void {
-    this.cameraPos = pos;
-    this.zoom = zoom;
-  }
+  // public setCamera(pos: [number, number], zoom: number): void {
+  //   this.cameraPos = pos;
+  //   this.zoom = zoom;
+  // }
 
   /**
    * Internal helper to record a new shape instance to the current frame buffer.
@@ -566,23 +566,20 @@ export class WebGPUBackend implements Backend {
   /**
    * Approximates a polygon from vertex points and pushes a polygon instance.
    */
-  drawPolygon(vertices: Array<[number, number]>): void {
+  drawPolygon(vertices: Array<Vector2>): void {
     if (!vertices.length) return;
 
     const cx =
-      vertices.reduce((sum, vertex) => sum + vertex[0], 0) / vertices.length;
+      vertices.reduce((sum, vertex) => sum + vertex.x, 0) / vertices.length;
 
     const cy =
-      vertices.reduce((sum, vertex) => sum + vertex[1], 0) / vertices.length;
+      vertices.reduce((sum, vertex) => sum + vertex.y, 0) / vertices.length;
 
     const radius =
-      vertices.reduce((sum, [x, y]) => sum + Math.hypot(x - cx, y - cy), 0) /
+      vertices.reduce((sum, vertex) => sum + Math.hypot(vertex.x - cx, vertex.y - cy), 0) /
       vertices.length;
 
-    const rotation = Math.atan2(
-      (vertices[0]?.[1] ?? 0) - cy,
-      (vertices[0]?.[0] ?? 0) - cx,
-    );
+    const rotation = 0;
 
     this.pushInstance({
       position: [cx, cy],
@@ -596,7 +593,7 @@ export class WebGPUBackend implements Backend {
   /**
    * Flushes all accumulated frame instances and submits the render pass to the GPU.
    */
-  present(): void {
+  public flush(): void {
     if (!this.device || !this.queue || !this.render_pipeline) return;
 
     this.update_camera(this.cameraPos, this.zoom);
@@ -635,137 +632,6 @@ export class WebGPUBackend implements Backend {
     this.queue.submit([encoder.finish()]);
 
     this.frameInstances = [];
-  }
-
-  /**
-   * Decodes a binary command stream buffer into drawing calls and presents the frame.
-   */
-  public processFrame(data: Float32Array, length: number): void {
-    const driver = this as Backend;
-    let i = 0;
-
-    while (i < length) {
-      const opcode = data[i++] as Commands;
-
-      switch (opcode) {
-        case Commands.Clear: {
-          if (!driver.clear) {
-            throw new Error("WebGPU backend does not implement 'clear()'.");
-          }
-          driver.clear(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.SetColor: {
-          if (!driver.setColor) {
-            throw new Error("WebGPU backend does not implement 'setColor()'.");
-          }
-          driver.setColor(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.DrawLine: {
-          if (!driver.drawLine) {
-            throw new Error("WebGPU backend does not implement 'drawLine()'.");
-          }
-          driver.drawLine(
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-          );
-          break;
-        }
-
-        case Commands.DrawCircle: {
-          if (!driver.drawCircle) {
-            throw new Error(
-              "WebGPU backend does not implement 'drawCircle()'.",
-            );
-          }
-          driver.drawCircle(data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.DrawRect: {
-          if (!driver.drawRect) {
-            throw new Error(
-              "WebGPU backend does not implement 'drawRect()'.",
-            );
-          }
-          driver.drawRect(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.DrawTriangle: {
-          if (!driver.drawTriangle) {
-            throw new Error(
-              "WebGPU backend does not implement 'drawTriangle()'.",
-            );
-          }
-          driver.drawTriangle(
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-          );
-          break;
-        }
-
-        case Commands.DrawRegularPolygon: {
-          if (!driver.drawRegularPolygon) {
-            throw new Error(
-              "WebGPU backend does not implement 'drawRegularPolygon()'.",
-            );
-          }
-          driver.drawRegularPolygon(
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-          );
-          break;
-        }
-
-        case Commands.DrawPolygon: {
-          if (!driver.drawPolygon) {
-            throw new Error(
-              "WebGPU backend does not implement 'drawPolygon()'.",
-            );
-          }
-          const vertCount = data[i++]!;
-          const vertices: Array<[number, number]> = [];
-          for (let v = 0; v < vertCount; v++) {
-            vertices.push([data[i++]!, data[i++]!]);
-          }
-          driver.drawPolygon(vertices);
-          break;
-        }
-
-        case Commands.DrawText: {
-          const x = data[i++]!;
-          const y = data[i++]!;
-          const size = data[i++]!;
-          const charCount = data[i++]!;
-          const alignment = data[i++]!;
-          let text = "";
-          for (let c = 0; c < charCount; c++)
-            text += String.fromCharCode(data[i++]!);
-
-          if (!driver.drawText) {
-            throw new Error("WebGPU backend does not implement 'drawText()'.");
-          }
-          driver.drawText(x, y, text, size, alignment);
-          break;
-        }
-      }
-    }
-
-    this.present();
   }
 
   /**

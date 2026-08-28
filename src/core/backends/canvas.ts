@@ -1,4 +1,4 @@
-import { Commands } from "../commands";
+import type { Vector2 } from "../../math/vector2";
 import type { Backend, RenderConfigs } from "../renderer";
 
 // TODO:
@@ -163,147 +163,14 @@ export class CanvasBackend implements Backend {
    *
    * @param vertices - Ordered list of [x, y] coordinates defining polygon perimeter.
    */
-  drawPolygon(vertices: Array<[number, number]>): void {
+  drawPolygon(vertices: Array<Vector2>): void {
     this.ctx.beginPath();
-    this.ctx.moveTo(vertices[0]?.[0] ?? 0, vertices[0]?.[1] ?? 0);
+    this.ctx.moveTo(vertices[0]!.x, vertices[0]!.y);
     for (let i = 1; i < vertices.length; i++) {
-      this.ctx.lineTo(vertices[i]?.[0] ?? 0, vertices[i]?.[1] ?? 0);
+      this.ctx.lineTo(vertices[i]!.x, vertices[i]!.y);
     }
     this.ctx.closePath();
     this.ctx.fill();
-  }
-
-  // Put this method here and not a base Backend class since we might want to process the command buffer differently in each backend.
-  // Having the command buffer here provides lots of flexibility but for now it is the same code in all three backends.
-  /**
-   * Decodes and executes primitive drawing commands sequentially from a raw command stream buffer.
-   *
-   * @param data - Encoded binary command stream payload.
-   * @param length - Active size/length boundary within command buffer.
-   */
-  public processFrame(data: Float32Array, length: number): void {
-    const driver = this as Backend;
-    let i = 0;
-
-    while (i < length) {
-      const opcode = data[i++] as Commands;
-
-      switch (opcode) {
-        case Commands.DrawText: {
-          if (!driver.drawText) {
-            throw new Error("Canvas backend does not implement 'drawText()'.");
-          }
-          const x = data[i++]!;
-          const y = data[i++]!;
-          const size = data[i++]!;
-          const charCount = data[i++]!;
-          const alignment = data[i++]!;
-          let text = "";
-          for (let c = 0; c < charCount; c++)
-            text += String.fromCharCode(data[i++]!);
-          driver.drawText(x, y, text, size, alignment);
-          break;
-        }
-
-        case Commands.Clear: {
-          if (!driver.clear) {
-            throw new Error("Canvas backend does not implement 'clear()'.");
-          }
-          driver.clear(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.SetColor: {
-          if (!driver.setColor) {
-            throw new Error("WebGL backend does not implement 'setColor()'.");
-          }
-          driver.setColor(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.DrawLine: {
-          if (!driver.drawLine) {
-            throw new Error("Canvas backend does not implement 'drawLine()'.");
-          }
-          driver.drawLine(
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-          );
-          break;
-        }
-
-        case Commands.DrawCircle: {
-          if (!driver.drawCircle) {
-            throw new Error(
-              "Canvas backend does not implement 'drawCircle()'.",
-            );
-          }
-          driver.drawCircle(data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-				case Commands.DrawRect: {
-					if (!driver.drawRect) {
-						throw new Error(
-							"Canvas backend does not implement 'drawRect()'.",
-						);
-					}
-					driver.drawRect(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
-					break;
-				}
-
-        case Commands.DrawTriangle: {
-          if (!driver.drawTriangle) {
-            throw new Error(
-              "Canvas backend does not implement 'drawTriangle()'.",
-            );
-          }
-          driver.drawTriangle(
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-          );
-          break;
-        }
-
-        case Commands.DrawRegularPolygon: {
-          if (!driver.drawRegularPolygon) {
-            throw new Error(
-              "Canvas backend does not implement 'drawRegularPolygon()'.",
-            );
-          }
-          driver.drawRegularPolygon(
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-          );
-          break;
-        }
-
-        case Commands.DrawPolygon: {
-          if (!driver.drawPolygon) {
-            throw new Error(
-              "Canvas backend does not implement 'drawPolygon()'.",
-            );
-          }
-          const vertCount = data[i++]!;
-          const vertices: Array<[number, number]> = [];
-          for (let v = 0; v < vertCount; v++) {
-            vertices.push([data[i++]!, data[i++]!]);
-          }
-          driver.drawPolygon(vertices);
-          break;
-        }
-      }
-    }
   }
 
   /**

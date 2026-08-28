@@ -1,7 +1,7 @@
 import type { RenderConfigs, Backend } from "../renderer";
-import { Commands } from "../commands";
 import { vertexShaderSource } from "../../graphics/shaders/webgl/vertex.ts";
 import { fragmentShaderSource } from "../../graphics/shaders/webgl/fragment.ts";
+import type { Camera } from "../camera.ts";
 
 interface ShaderLocations {
   program: WebGLProgram;
@@ -156,7 +156,7 @@ export class WebGLBackend implements Backend {
     return shader;
   }
 
-  private flush() {
+  public flush() {
     if (this.batchOffset === 0) return;
 
     this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, this.vertexBuffer);
@@ -208,7 +208,6 @@ export class WebGLBackend implements Backend {
   }
 
   clear(r: number, g: number, b: number, a: number): void {
-    this.flush();
     this.ctx.clearColor(r / 255, g / 255, b / 255, a);
     this.ctx.clear(this.ctx.COLOR_BUFFER_BIT);
   }
@@ -298,129 +297,9 @@ export class WebGLBackend implements Backend {
 
   // }
 
-  public updateView(): void {
+  public updateView(camera: Camera): void {
     this.flush();
-    this.ctx.uniformMatrix4fv(this.shaderLocations.uniforms.viewProjection, false, this.viewProjectionMatrix);
-  }
-
-  public processFrame(data: Float32Array, length: number): void {
-    const driver = this as Backend;
-    let i = 0;
-
-    while (i < length) {
-      const opcode = data[i++] as Commands;
-
-      switch (opcode) {
-        case Commands.Clear: {
-          if (!driver.clear) {
-            throw new Error("WebGL backend does not implement 'clear()'.");
-          }
-          driver.clear(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.SetColor: {
-          if (!driver.setColor) {
-            throw new Error("WebGL backend does not implement 'setColor()'.");
-          }
-          driver.setColor(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.DrawLine: {
-          if (!driver.drawLine) {
-            throw new Error("WebGL backend does not implement 'drawLine()'.");
-          }
-          driver.drawLine(
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-          );
-          break;
-        }
-
-        case Commands.DrawCircle: {
-          if (!driver.drawCircle) {
-            throw new Error("WebGL backend does not implement 'drawCircle()'.");
-          }
-          driver.drawCircle(data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.DrawRect: {
-          if (!driver.drawRect) {
-            throw new Error("WebGL backend does not implement 'drawRect()'.");
-          }
-          driver.drawRect(data[i++]!, data[i++]!, data[i++]!, data[i++]!);
-          break;
-        }
-
-        case Commands.DrawTriangle: {
-          if (!driver.drawTriangle) {
-            throw new Error(
-              "WebGL backend does not implement 'drawTriangle()'.",
-            );
-          }
-          driver.drawTriangle(
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-          );
-          break;
-        }
-
-        case Commands.DrawRegularPolygon: {
-          if (!driver.drawRegularPolygon) {
-            throw new Error(
-              "WebGL backend does not implement 'drawRegularPolygon()'.",
-            );
-          }
-          driver.drawRegularPolygon(
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-            data[i++]!,
-          );
-          break;
-        }
-
-        case Commands.DrawPolygon: {
-          if (!driver.drawPolygon) {
-            throw new Error(
-              "WebGL backend does not implement 'drawPolygon()'.",
-            );
-          }
-          const vertCount = data[i++]!;
-          const vertices: Array<[number, number]> = [];
-          for (let v = 0; v < vertCount; v++) {
-            vertices.push([data[i++]!, data[i++]!]);
-          }
-          driver.drawPolygon(vertices);
-          break;
-        }
-
-        case Commands.UpdateView: {
-          if (!driver.updateView) {
-            throw new Error(
-              "WebGL backend does not implement 'updateView()'.",
-            );
-          }
-          for (let j = 0; j < 16; j++) {
-            this.viewProjectionMatrix[j] = data[i++]!;
-          }
-          driver.updateView();
-          break;
-        }
-      }
-    }
-
-    this.flush();
+    this.ctx.uniformMatrix4fv(this.shaderLocations.uniforms.viewProjection, false, camera.viewProjectionMatrix.data);
   }
 
   resize(width: number, height: number): void {

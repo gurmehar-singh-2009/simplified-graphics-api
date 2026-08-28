@@ -64,7 +64,8 @@ export interface Camera {
   rotation: Quaternion,
   projectionMatrix: Matrix4,
   viewMatrix: Matrix4,
-  viewProjectionMatrix: Matrix4
+  viewProjectionMatrix: Matrix4,
+  resize(width: number, height: number): void
 }
 
 export class PerspectiveCamera implements Camera {
@@ -95,7 +96,7 @@ export class PerspectiveCamera implements Camera {
     this.updateViewProjectionMatrix();
   }
 
-  public updateProjectionMatrix(): void {
+  private updateProjectionMatrix(): void {
     Matrix4.getPerspectiveMatrix(
       this.fov,
       this.aspectRatio,
@@ -105,16 +106,23 @@ export class PerspectiveCamera implements Camera {
     );
   }
 
-  public updateViewMatrix(): void {
+  private updateViewMatrix(): void {
     const conjugateRotation = this.rotation.conjugate();
     const rotationMatrix = Matrix4.fromQuaternion(conjugateRotation);
-    const translationMatrix = Matrix4.fromVector3(this.position);
+    const translationMatrix = Matrix4.fromVector3(this.position.negative());
 
     Matrix4.multiply(rotationMatrix, translationMatrix, this.viewMatrix);
   }
 
-  public updateViewProjectionMatrix(): void {
+  private updateViewProjectionMatrix(): void {
     Matrix4.multiply(this.projectionMatrix, this.viewMatrix, this.viewProjectionMatrix);
+  }
+
+  resize(width: number, height: number): void {
+    this.aspectRatio = width / height;
+
+    this.updateProjectionMatrix();
+    this.updateViewProjectionMatrix();
   }
 }
 
@@ -136,8 +144,8 @@ export class OrthographicCamera implements Camera {
   constructor(width: number, aspectRatio: number = 16 / 9, near: number = -1, far: number = 1, position: Vector3 = new Vector3(0, 0, 0), rotation: Quaternion = Quaternion.identity()) {
     this.left = -width / 2;
     this.right = width / 2;
-    this.top = -(width / aspectRatio) / 2;
-    this.bottom = (width / aspectRatio) / 2;
+    this.top = (width / aspectRatio) / 2;
+    this.bottom = -(width / aspectRatio) / 2;
     this.near = near;
     this.far = far;
 
@@ -149,7 +157,7 @@ export class OrthographicCamera implements Camera {
     this.updateViewProjectionMatrix();
   }
 
-  public updateProjectionMatrix(): void {
+  private updateProjectionMatrix(): void {
     Matrix4.getOrthographicMatrix(
       this.left,
       this.right,
@@ -161,15 +169,25 @@ export class OrthographicCamera implements Camera {
     );
   }
 
-  public updateViewMatrix(): void {
+  private updateViewMatrix(): void {
     const conjugateRotation = this.rotation.conjugate();
     const rotationMatrix = Matrix4.fromQuaternion(conjugateRotation);
-    const translationMatrix = Matrix4.fromVector3(this.position);
+    const translationMatrix = Matrix4.fromVector3(this.position.negative());
 
     Matrix4.multiply(rotationMatrix, translationMatrix, this.viewMatrix);
   }
 
-  public updateViewProjectionMatrix(): void {
+  private updateViewProjectionMatrix(): void {
     Matrix4.multiply(this.projectionMatrix, this.viewMatrix, this.viewProjectionMatrix);
+  }
+
+  resize(width: number, height: number): void {
+    this.left = -width / 2;
+    this.right = width / 2;
+    this.top = height / 2;
+    this.bottom = -height / 2;
+
+    this.updateProjectionMatrix();
+    this.updateViewProjectionMatrix();
   }
 }

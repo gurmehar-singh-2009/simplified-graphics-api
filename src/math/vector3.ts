@@ -84,6 +84,14 @@ export class Vector3 {
 		return this.mul(1 / mag);
 	}
 
+	public negative(): Vector3 {
+		this.x = -this.x;
+		this.y = -this.y;
+		this.z = -this.z;
+
+		return this;
+	}
+
 	/**
 	 * Returns the dot product with another vector.
 	 * @param other The other vector.

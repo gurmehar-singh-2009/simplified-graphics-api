@@ -1,3 +1,6 @@
+import type { Vector2 } from "../math/vector2";
+import type { Camera } from "./camera";
+
 export type Dimension = "2D" | "3D";
 
 export enum Backends {
@@ -45,10 +48,10 @@ export interface Backend {
 		sides: number,
 		rot?: number,
 	): void;
-	drawPolygon?(vertices: Array<[number, number]>): void;
+	drawPolygon?(vertices: Array<Vector2>): void;
 	resize?(width: number, height: number): void;
 	drawText?(x: number, y: number, text: string, size: number, alignment: number): void;
-	updateView?(): void;
+	updateView?(camera: Camera): void;
 
-	processFrame(data: Float32Array, length: number): void;
+	flush?(): void;
 }
