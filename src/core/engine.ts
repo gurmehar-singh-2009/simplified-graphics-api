@@ -1,12 +1,9 @@
-import { CanvasBackend } from "./backends/canvas";
-import { WebGLBackend } from "./backends/webgl";
-import { WebGPUBackend } from "./backends/webgpu";
 import { RenderEvent } from "./renderEvents";
-import { type Backend, Backends, type RenderConfigs } from "./renderer";
-import { type Camera } from "./camera.ts";
+import type { RenderConfigs } from "./renderer";
+import type { Camera } from "./camera";
 
 export class Engine {
-	private canvas: HTMLCanvasElement;
+  private canvas: HTMLCanvasElement;
 
   private activeCamera: Camera | undefined;
   private renderEvent: RenderEvent;
@@ -15,28 +12,32 @@ export class Engine {
   private fps: number = 60;
   private lastFrameTimestamp: DOMHighResTimeStamp = performance.now();
 
-  private width = 100;
-  private height = 100;
+  private width: number;
+  private height: number;
 
   public onFrame: (
     renderer: RenderEvent,
     timestamp: DOMHighResTimeStamp,
-  ) => void = () => { };
+    delta: number,
+  ) => void = () => {};
 
   constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
     this.canvas = canvas;
-
+    this.width = canvas.width || 100;
+    this.height = canvas.height || 100;
     this.renderEvent = new RenderEvent(canvas, configs);
   }
 
   public start(): void {
     if (this.active) return;
     this.active = true;
+    this.lastFrameTimestamp = performance.now();
 
     const loop = (timestamp: DOMHighResTimeStamp) => {
       if (!this.active) return;
 
-      let delta = timestamp - this.lastFrameTimestamp;
+      // FIX: clamp huge deltas (tab was backgrounded, debugger pause, etc.)
+      const delta = Math.min(timestamp - this.lastFrameTimestamp, 100);
       this.lastFrameTimestamp = timestamp;
 
       if (delta > 0) {
@@ -44,7 +45,11 @@ export class Engine {
         this.fps = this.fps * 0.9 + currentFps * 0.1;
       }
 
-      this.onFrame(this.renderEvent, timestamp);
+      this.onFrame(this.renderEvent, timestamp, delta);
+
+      if (this.activeCamera) {
+        this.renderEvent.updateView(this.activeCamera);
+      }
 
       this.renderEvent.processFrame(this.fps);
 
@@ -54,20 +59,27 @@ export class Engine {
     requestAnimationFrame(loop);
   }
 
-  public setCamera(cam: Camera) {
+  public stop(): void {
+    this.active = false;
+  }
+
+  public setCamera(cam: Camera): void {
     this.activeCamera = cam;
     this.activeCamera.resize(this.width, this.height);
-
     this.renderEvent.updateView(this.activeCamera);
   }
 
   public resize(width: number, height: number): void {
+    this.width = width;
+    this.height = height;
+
     this.canvas.width = width;
     this.canvas.height = height;
 
-    if (this.activeCamera) {
-      this.activeCamera.resize(this.canvas.width, this.canvas.height);
+    this.renderEvent.resize(width, height);
 
+    if (this.activeCamera) {
+      this.activeCamera.resize(width, height);
       this.renderEvent.updateView(this.activeCamera);
     }
   }

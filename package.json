@@ -10,8 +10,8 @@
 		"lint": "bunx --bun @biomejs/biome lint --write",
 		"check:unsafe": "bunx --bun @biomejs/biome check --write --unsafe ./src",
 		"typecheck": "tsc --noEmit",
-		"docs:dev": "typedoc && vitepress dev docs",
-		"docs:build": "typedoc && vitepress build docs",
+		"docs:dev": "typedoc && bun run docs/sync-docs-assets.ts && vitepress dev docs",
+		"docs:build": "bun run build && typedoc && bun run docs/sync-docs-assets.ts && vitepress build docs",
 		"docs:preview": "vitepress preview docs"
 	},
 	"devDependencies": {

@@ -1,4 +1,6 @@
+import type { Quaternion } from "../../math/quaternion";
 import type { Vector2 } from "../../math/vector2";
+import type { Vector3 } from "../../math/vector3";
 import type { Backend, RenderConfigs } from "../renderer";
 
 // TODO:
@@ -115,17 +117,17 @@ export class CanvasBackend implements Backend {
     this.ctx.fill();
   }
 
-	/**
-	 * Draws a filled rectangle/square given center coordinates and dimensions.
-	 *
-	 * @param x - Top-left corner X coordinate.
-	 * @param y - Top-left corner Y coordinate.
-	 * @param w - Rectangle width in pixels.
-	 * @param h - Rectangle height in pixels.
-	 */
-	drawRect(x: number, y: number, w: number, h: number): void {
-		this.ctx.fillRect(x, y, w, h);
-	}
+  /**
+   * Draws a filled rectangle/square given center coordinates and dimensions.
+   *
+   * @param x - Top-left corner X coordinate.
+   * @param y - Top-left corner Y coordinate.
+   * @param w - Rectangle width in pixels.
+   * @param h - Rectangle height in pixels.
+   */
+  drawRect(x: number, y: number, w: number, h: number): void {
+    this.ctx.fillRect(x, y, w, h);
+  }
 
   /**
    * Draws a filled regular polygon centered at specified coordinates with N sides.
@@ -194,7 +196,7 @@ export class CanvasBackend implements Backend {
     this.ctx.fillText(text, x, y);
   }
 
-  public resize(width: number, height: number): void {
+  public resize(width: number, height: number): void {}
 
-  }
+  flush(): void {}
 }

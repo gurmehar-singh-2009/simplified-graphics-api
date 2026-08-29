@@ -129,11 +129,11 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
         // border_color is repurposed for glyphs: [u0, v0, uWidth, vHeight]
         let atlas_uv = in.border_color.xy + local01 * in.border_color.zw;
         let coverage = textureSampleLevel(atlas_tex, atlas_samp, atlas_uv, 0.0).a;
-        
+
         if (coverage < 0.01) {
             discard;
         }
-        
+
         return vec4<f32>(in.fill_color.rgb, in.fill_color.a * coverage);
     }
 

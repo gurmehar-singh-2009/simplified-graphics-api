@@ -104,7 +104,9 @@ export class WebGLBackend implements Backend {
 
     this.ctx.bindVertexArray(null);
 
-    this.batchData = new Float32Array(this.trianglesPerBatch * 3 * this.floatsPerVertex);
+    this.batchData = new Float32Array(
+      this.trianglesPerBatch * 3 * this.floatsPerVertex,
+    );
     this.batchOffset = 0;
 
     this.resize(500, 500);
@@ -134,11 +136,14 @@ export class WebGLBackend implements Backend {
         position: this.ctx.getAttribLocation(program, "a_position"),
         texCoord: this.ctx.getAttribLocation(program, "a_texCoord"),
         colour: this.ctx.getAttribLocation(program, "a_colour"),
-        type: this.ctx.getAttribLocation(program, "a_type")
+        type: this.ctx.getAttribLocation(program, "a_type"),
       },
 
       uniforms: {
-        viewProjection: this.ctx.getUniformLocation(program, "u_viewProjection")!
+        viewProjection: this.ctx.getUniformLocation(
+          program,
+          "u_viewProjection",
+        )!,
       },
     };
   }
@@ -169,7 +174,11 @@ export class WebGLBackend implements Backend {
       this.batchOffset,
     );
     this.ctx.bindVertexArray(this.vao);
-    this.ctx.drawArrays(this.ctx.TRIANGLES, 0, this.batchOffset / this.floatsPerVertex);
+    this.ctx.drawArrays(
+      this.ctx.TRIANGLES,
+      0,
+      this.batchOffset / this.floatsPerVertex,
+    );
 
     this.ctx.bindVertexArray(null);
 
@@ -216,7 +225,13 @@ export class WebGLBackend implements Backend {
     this.currentColor = [r / 255, g / 255, b / 255, a];
   }
 
-  drawLine(x1: number, y1: number, x2: number, y2: number, thickness: number): void {
+  drawLine(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    thickness: number,
+  ): void {
     let dx: number = x2 - x1;
     let dy: number = y2 - y1;
 
@@ -226,8 +241,22 @@ export class WebGLBackend implements Backend {
     let perpX = (-dy / length) * (thickness / 2);
     let perpY = (dx / length) * (thickness / 2);
 
-    this.drawTriangle(x1 + perpX, y1 + perpY, x1 - perpX, y1 - perpY, x2 + perpX, y2 + perpY);
-    this.drawTriangle(x2 + perpX, y2 + perpY, x2 - perpX, y2 - perpY, x1 - perpX, y1 - perpY);
+    this.drawTriangle(
+      x1 + perpX,
+      y1 + perpY,
+      x1 - perpX,
+      y1 - perpY,
+      x2 + perpX,
+      y2 + perpY,
+    );
+    this.drawTriangle(
+      x2 + perpX,
+      y2 + perpY,
+      x2 - perpX,
+      y2 - perpY,
+      x1 - perpX,
+      y1 - perpY,
+    );
   }
 
   drawCircle(x: number, y: number, radius: number): void {
@@ -272,7 +301,7 @@ export class WebGLBackend implements Backend {
     y: number,
     size: number,
     sides: number,
-    rot: number = 0
+    rot: number = 0,
   ): void {
     if (sides < 3) return;
 
@@ -299,7 +328,11 @@ export class WebGLBackend implements Backend {
 
   public updateView(camera: Camera): void {
     this.flush();
-    this.ctx.uniformMatrix4fv(this.shaderLocations.uniforms.viewProjection, false, camera.viewProjectionMatrix.data);
+    this.ctx.uniformMatrix4fv(
+      this.shaderLocations.uniforms.viewProjection,
+      false,
+      camera.viewProjectionMatrix.data,
+    );
   }
 
   resize(width: number, height: number): void {
