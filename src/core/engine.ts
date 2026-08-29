@@ -1,146 +1,86 @@
-import { CanvasBackend } from "./backends/canvas";
-import { WebGLBackend } from "./backends/webgl";
-import { WebGPUBackend } from "./backends/webgpu";
 import { RenderEvent } from "./renderEvents";
-import { type Backend, Backends, type RenderConfigs } from "./renderer";
-import type { MeshData } from "../graphics/mesh";
+import type { RenderConfigs } from "./renderer";
+import type { Camera } from "./camera";
 
 export class Engine {
-	private canvas: HTMLCanvasElement;
-	private configs: RenderConfigs;
+  private canvas: HTMLCanvasElement;
 
-	private backend: Backend;
-	private renderEvent: RenderEvent;
-	private active = false;
+  private activeCamera: Camera | undefined;
+  private renderEvent: RenderEvent;
+  private active = false;
 
-	private fps: number = 60;
-	private lastFrameTimestamp: DOMHighResTimeStamp = performance.now();
+  private fps: number = 60;
+  private lastFrameTimestamp: DOMHighResTimeStamp = performance.now();
 
-	public onFrame: (
-		renderer: RenderEvent,
-		timestamp: DOMHighResTimeStamp,
-		delta: number,
-	) => void = () => {};
+  private width: number;
+  private height: number;
 
-	constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
-		this.canvas = canvas;
-		this.configs = configs;
+  public onFrame: (
+    renderer: RenderEvent,
+    timestamp: DOMHighResTimeStamp,
+    delta: number,
+  ) => void = () => {};
 
-		// Pick the correct backend.
-		switch (this.configs.backend) {
-			case Backends.CANVAS:
-				this.backend = new CanvasBackend(canvas, configs);
-				break;
-			case Backends.WEBGPU:
-				this.backend = new WebGPUBackend(canvas, configs);
-				break;
-			case Backends.WEBGL:
-				this.backend = new WebGLBackend(canvas, configs);
-				break;
-			default:
-				throw new Error(`Unsupported backend: ${this.configs.backend}`);
-		}
+  constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
+    this.canvas = canvas;
+    this.width = canvas.width || 100;
+    this.height = canvas.height || 100;
+    this.renderEvent = new RenderEvent(canvas, configs);
+  }
 
-		// This contaians the command buffer and all user facing methods.
-		this.renderEvent = new RenderEvent();
-	}
+  public start(): void {
+    if (this.active) return;
+    this.active = true;
+    this.lastFrameTimestamp = performance.now();
 
-	public start(): void {
-		if (this.active) return;
-		this.active = true;
+    const loop = (timestamp: DOMHighResTimeStamp) => {
+      if (!this.active) return;
 
-		const loop = (timestamp: DOMHighResTimeStamp) => {
-			if (!this.active) return;
+      // FIX: clamp huge deltas (tab was backgrounded, debugger pause, etc.)
+      const delta = Math.min(timestamp - this.lastFrameTimestamp, 100);
+      this.lastFrameTimestamp = timestamp;
 
-			let delta = timestamp - this.lastFrameTimestamp;
-			this.lastFrameTimestamp = timestamp;
+      if (delta > 0) {
+        const currentFps = 1000 / delta;
+        this.fps = this.fps * 0.9 + currentFps * 0.1;
+      }
 
-			if (delta > 0) {
-				const currentFps = 1000 / delta;
-				this.fps = this.fps * 0.9 + currentFps * 0.1;
-			}
+      this.onFrame(this.renderEvent, timestamp, delta);
 
-			this.renderEvent.resetCommandBuffer();
+      if (this.activeCamera) {
+        this.renderEvent.updateView(this.activeCamera);
+      }
 
-			this.onFrame(this.renderEvent, timestamp, delta);
+      this.renderEvent.processFrame(this.fps);
 
-			// Render the debug panel.
-			// console.log(this.configs)
-			if (this.configs.debug) {
-				this.renderEvent.setColor(0, 0, 0, 1);
-				this.renderEvent.drawRect(10, 10, 400, 200);
+      requestAnimationFrame(loop);
+    };
 
-				this.renderEvent.setColor(255, 255, 255, 1);
-				this.renderEvent.drawText(200, 35, "DEBUG PANEL", 18, 1);
+    requestAnimationFrame(loop);
+  }
 
-				this.renderEvent.drawText(
-					20,
-					65,
-					`Command Buffer size: ${this.renderEvent.commandBuffer.length}`,
-					16,
-					0,
-				);
-				this.renderEvent.drawText(20, 85, `FPS: ${this.fps.toFixed(2)}`, 16, 0);
-				this.renderEvent.drawText(
-					20,
-					105,
-					`Memory: ${"memory" in performance && (performance as any).memory ? ((performance as any).memory.usedJSHeapSize / (1024 * 1024)).toFixed(2) + "MB / " + ((performance as any).memory.jsHeapSizeLimit / (1024 * 1024)).toFixed(2) + "MB" : "N/A"}`,
-					16,
-					0,
-				);
-				this.renderEvent.drawText(
-					20,
-					125,
-					`CPU Cores: ${navigator.hardwareConcurrency || "N/A"}`,
-					16,
-					0,
-				);
-				this.renderEvent.drawText(
-					20,
-					145,
-					`Resolution: ${window.innerWidth}x${window.innerHeight}`,
-					16,
-					0,
-				);
-				this.renderEvent.drawText(
-					20,
-					165,
-					`Network: ${navigator.onLine ? "Online" : "Offline"} (${(navigator as any).connection?.effectiveType || "unknown"})`,
-					16,
-					0,
-				);
-			}
+  public stop(): void {
+    this.active = false;
+  }
 
-			// Send all commands to backend
-			this.backend.processFrame(
-				this.renderEvent.commandBuffer.data,
-				this.renderEvent.commandBuffer.length,
-			);
+  public setCamera(cam: Camera): void {
+    this.activeCamera = cam;
+    this.activeCamera.resize(this.width, this.height);
+    this.renderEvent.updateView(this.activeCamera);
+  }
 
-			requestAnimationFrame(loop);
-		};
+  public resize(width: number, height: number): void {
+    this.width = width;
+    this.height = height;
 
-		requestAnimationFrame(loop);
-	}
+    this.canvas.width = width;
+    this.canvas.height = height;
 
-	public resize(width: number, height: number): void {
-		this.canvas.width = width;
-		this.canvas.height = height;
+    this.renderEvent.resize(width, height);
 
-		if (this.backend.resize) {
-			this.backend.resize(width, height);
-		} else {
-			throw new Error("Current backend does not implement 'resize()'.");
-		}
-	}
-
-	public createMesh(id: number, mesh: MeshData): void {
-		if (!this.backend.createMesh) {
-			throw new Error(
-				"didnt you read the readme it says canvas backend doesnt support 3d!!!!\n read the readme its really cool (or the documentation site) saves you a lot of trouble!!!",
-			);
-		}
-
-		this.backend.createMesh(id, mesh);
-	}
+    if (this.activeCamera) {
+      this.activeCamera.resize(width, height);
+      this.renderEvent.updateView(this.activeCamera);
+    }
+  }
 }
