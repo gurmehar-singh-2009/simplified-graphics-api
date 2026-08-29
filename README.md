@@ -25,7 +25,7 @@
 > <details>
 > <summary>Why not do 3D using the Canvas2D API?</summary>
 > <br />
-> Simply put, it makes no sense to do 3d graphics using the Canvas2d API for these reasons:
+> Simply put, it makes no sense to do 3d graphics using the Canvas2D API for these reasons:<br />
 > - Not computationally reasonable. Canvas2D is not guaranteed to be hardware optimized. It makes an attempt by doing as much optimization as it can but it can be unpredictable and we have no control over that.
 > - We would reinvent the wheel. In order to do 3D graphics we would have to manipulate the `(x, y, z)` coordinate pairs. Sound familiar? That's what a vertex shader does! And we would have to optimize this by either: (a) creating a WASM module with SIMD, (b) writing compute shaders (arguably dumber because you're now bringing in a gpu pipeline... why not just use that directly?).
 >
