@@ -1,6 +1,6 @@
 <div align="center">
 
-# Simplified Graphics API (name pending)
+# EasyGFX
 
 <p align=center>
     <sub>A really nice API to work with for graphics programming!</sub>
@@ -17,6 +17,7 @@
 </div>
 
 ---
+
 > [!NOTE]
 > **Library is in active development.** Core systems are currently being written and will change without warning.
 
@@ -25,13 +26,14 @@
 > <details>
 > <summary>Why not do 3D using the Canvas2D API?</summary>
 > <br />
-> Simply put, it makes no sense to do 3d graphics using the Canvas2d API for these reasons:
+> Simply put, it makes no sense to do 3d graphics using the Canvas2D API for these reasons:<br />
 > - Not computationally reasonable. Canvas2D is not guaranteed to be hardware optimized. It makes an attempt by doing as much optimization as it can but it can be unpredictable and we have no control over that.
 > - We would reinvent the wheel. In order to do 3D graphics we would have to manipulate the `(x, y, z)` coordinate pairs. Sound familiar? That's what a vertex shader does! And we would have to optimize this by either: (a) creating a WASM module with SIMD, (b) writing compute shaders (arguably dumber because you're now bringing in a gpu pipeline... why not just use that directly?).
 >
 > </details>
 
 ## Features (planned)
+
 - Fully complete 2D renderer.
 - Fully complete 3D renderer.
 - - Can load .obj files.
@@ -40,23 +42,26 @@
 
 ## Project Roadmap
 
-| Importance | Feature | Status |
-| :---: | :-- | :--- |
-| High | 2D shape primitives | In progress |
-| High | 3D shape primitives | In progress |
-| High | Texture support | In progress |
-| Medium | Text Rendering | In Progress |
-| Medium | Entities Support built in | Planned |
-| Low | WebGL/WebGPU tutorial | Planned |
-| Low | Multiplayer network support | Planned |
-| Low | Debug panel | In Progress |
-| Low | Audio | Discussion |
-| Low | Input Handling | Discussion |
-
+| Importance | Feature                     | Status      |
+| :--------: | :-------------------------- | :---------- |
+|    High    | 2D shape primitives         | In progress |
+|    High    | 3D shape primitives         | In progress |
+|    High    | Texture support             | In progress |
+|   Medium   | Text Rendering              | In Progress |
+|   Medium   | Entities Support built in   | Planned     |
+|    Low     | WebGL/WebGPU tutorial       | Planned     |
+|    Low     | Multiplayer network support | Planned     |
+|    Low     | Debug panel                 | In Progress |
+|    Low     | Audio                       | Discussion  |
+|    Low     | Input Handling              | Discussion  |
 
 ## Demo
+
 ```ts
-import { Backends, Engine } from "simplified-graphics-api";
+import {
+  Backends,
+  Engine,
+} from "https://cdn.jsdelivr.net/gh/gurmehar-singh-2009/easygfx@main/dist/index.";
 
 const gameCanvas = document.createElement("gameCanvas");
 document.body.appendChild(gameCanvas);
@@ -66,6 +71,12 @@ const engine = new Engine(gameCanvas, {
   antialias: false,
   debug: false,
 });
+
+window.addEventListener("resize", () => {
+  engine.resize(window.innerWidth, window.innerHeight);
+});
+
+engine.resize(window.innerWidth, window.innerHeight);
 
 engine.start();
 
@@ -77,5 +88,5 @@ engine.onFrame = (renderer, timestamp) => {
 
   renderer.setColor(255, 255, 255, 1);
   renderer.drawText(50, 100, "Working Demo!", 22);
-}
+};
 ```

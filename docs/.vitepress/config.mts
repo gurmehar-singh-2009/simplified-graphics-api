@@ -2,9 +2,9 @@ import { defineConfig } from "vitepress";
 import typedocSidebar from "../api/typedoc-sidebar.json";
 
 export default defineConfig({
-  base: "/simplified-graphics-api/",
-  title: "simplified-graphics-api",
-  description: "Documentation for simplified-graphics-api",
+  base: "/easygfx/",
+  title: "easygfx",
+  description: "Documentation for easygfx",
   ignoreDeadLinks: true,
   themeConfig: {
     nav: [

@@ -1,5 +1,5 @@
 {
-	"name": "simplified-graphics-api",
+	"name": "easygfx",
 	"module": "src/index.ts",
 	"type": "module",
 	"scripts": {
