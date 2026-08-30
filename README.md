@@ -61,7 +61,7 @@
 import {
   Backends,
   Engine,
-} from "https://cdn.jsdelivr.net/gh/gurmehar-singh-2009/easygfx@main/dist/index.";
+} from "https://cdn.jsdelivr.net/gh/gurmehar-singh-2009/easygfx@main/dist/index.js";
 
 const gameCanvas = document.createElement("gameCanvas");
 document.body.appendChild(gameCanvas);
