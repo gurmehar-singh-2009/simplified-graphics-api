@@ -1,173 +1,250 @@
 /**
- * 3rd Dimension vector class.
+ * 3th Dimension vector class.
  */
 export class Vector3 {
-  /** x position */
-  public x: number;
-  /** y position */
-  public y: number;
-  /** z position */
-  public z: number;
+	/** x position */
+	public x: number;
+	/** y position */
+	public y: number;
+	/** z position */
+	public z: number;
 
-  /**
-   * Constructor. I mean what else is this?
-   * @param x The x coordinate.
-   * @param y The y coordinate.
-   * @param z The z coordinate.
-   */
-  constructor(x: number, y: number, z: number) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
+	/**
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 * @param z The z coordinate.
+	 */
+	constructor(x: number = 0, y: number = 0, z: number = 0) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
 
-  /**
-   * Add this vector with another vector. Returns the result.
-   * @param other The other vector.
-   * @returns The result of the addition operation conducted on the vectors.
-   */
-  public add(other: Vector3): Vector3 {
-    return new Vector3(this.x + other.x, this.y + other.y, this.z + other.z);
-  }
+	public set(x: number, y: number, z: number): this {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		return this;
+	}
 
-  /**
-   * Subtract this vector with another vector. Returns the result.
-   * @param other The other vector.
-   * @returns The result of the subtraction operation conducted on the vectors.
-   */
-  public sub(other: Vector3): Vector3 {
-    return new Vector3(this.x - other.x, this.y - other.y, this.z - other.z);
-  }
+	public copy(v: Vector3): this {
+		this.x = v.x;
+		this.y = v.y;
+		this.z = v.z;
+		return this;
+	}
 
-  /**
-   * Scale this vector using a scalar.
-   * @param scalar The scalar value.
-   * @returns The scaled vector.
-   */
-  public mul(scalar: number): Vector3 {
-    return new Vector3(this.x * scalar, this.y * scalar, this.z * scalar);
-  }
+	public clone(): Vector3 {
+		return new Vector3(this.x, this.y, this.z);
+	}
 
-  /**
-   * Returns a copy of the vector negated.
-   * @returns The negative version of the vector.
-   */
-  public negative(): Vector3 {
-    this.x = -this.x;
-    this.y = -this.y;
-    this.z = -this.z;
+	// So these are the methods the user usually uses but they internally use the optimized methods
+	public add(v: Vector3): this {
+		return Vector3.add(this, v, this) as this;
+	}
 
-    return this;
-  }
+	public subtract(v: Vector3): this {
+		return Vector3.subtract(this, v, this) as this;
+	}
 
-  /**
-   * Returns the magnitude of the vector (length).
-   * @returns The magnitude of the vector.
-   */
-  public mag(): number {
-    return Math.sqrt(this.mag_squared());
-  }
+	public multiply(scalar: number): this {
+		return Vector3.multiply(this, scalar, this) as this;
+	}
 
-  /**
-   * Returns the squared magnitude of the vector. Useful for performance optimization as it avoids the `Math.sqrt` call.
-   * @returns The squared magnitude of the vector.
-   */
-  public mag_squared(): number {
-    return this.x * this.x + this.y * this.y + this.z * this.z;
-  }
+	public divide(scalar: number): this {
+		return Vector3.divide(this, scalar, this) as this;
+	}
 
-  /**
-   * Clones the vector...
-   * @returns The clone of the vector.
-   */
-  public clone(): Vector3 {
-    return new Vector3(this.x, this.y, this.z);
-  }
+	public negate(): this {
+		return Vector3.negate(this, this) as this;
+	}
 
-  /**
-   * Normalize the vector (makes its length 1, while preserving direction).
-   * @returns The normalized vector.
-   */
-  public normalize(): Vector3 {
-    const mag = this.mag();
+	public normalize(): this {
+		return Vector3.normalize(this, this) as this;
+	}
 
-    if (mag === 0) return Vector3.ZERO;
+	public cross(v: Vector3): this {
+		return Vector3.cross(this, v, this) as this;
+	}
 
-    return this.mul(1 / mag);
-  }
+	public lerp(target: Vector3, t: number): this {
+		return Vector3.lerp(this, target, t, this) as this;
+	}
 
-  /**
-   * Returns the dot product with another vector.
-   * @param other The other vector.
-   * @returns The dot product result.
-   */
-  public dot(other: Vector3): number {
-    return this.x * other.x + this.y * other.y + this.z * other.z;
-  }
+	public dot(other: Vector3): number {
+		return Vector3.dot(this, other);
+	}
 
-  /**
-   * Returns the cross product with another vector.
-   * @param other The other vector.
-   * @returns The cross product result vector.
-   */
-  public cross(other: Vector3): Vector3 {
-    return new Vector3(
-      this.y * other.z - this.z * other.y,
-      this.z * other.x - this.x * other.z,
-      this.x * other.y - this.y * other.x,
-    );
-  }
+	public distanceTo(other: Vector3): number {
+		return Vector3.distance(this, other);
+	}
 
-  /**
-   * Calculate the distance to another vector.
-   * @param other The other vector.
-   * @returns The euclidean distance.
-   */
-  public distanceTo(other: Vector3): number {
-    const dx = this.x - other.x;
-    const dy = this.y - other.y;
-    const dz = this.z - other.z;
+	public squaredDistanceTo(other: Vector3): number {
+		return Vector3.squaredDistance(this, other);
+	}
 
-    return Math.sqrt(dx * dx + dy * dy + dz * dz);
-  }
+	public equals(other: Vector3, epsilon: number = 0): boolean {
+		return Vector3.equals(this, other, epsilon);
+	}
 
-  /**
-   * Calculate the squared distance to another vector. Useful for optimization as it avoids the `Math.sqrt` call.
-   * @param other The other vector.
-   * @returns The squared euclidean distance.
-   */
-  public squaredDistanceTo(other: Vector3): number {
-    const dx = this.x - other.x;
-    const dy = this.y - other.y;
-    const dz = this.z - other.z;
+	public angleTo(other: Vector3): number {
+		return Vector3.angleBetween(this, other);
+	}
 
-    return dx * dx + dy * dy + dz * dz;
-  }
+	// These are the optimized methods. They only allocate new Vector3 if an existing is not given.
+	public static add(
+		a: Vector3,
+		b: Vector3,
+		out: Vector3 = new Vector3(),
+	): Vector3 {
+		out.x = a.x + b.x;
+		out.y = a.y + b.y;
+		out.z = a.z + b.z;
+		return out;
+	}
 
-  /**
-   * Checks if this vector is equal to another vector.
-   * @param other The other vector.
-   * @returns Whether they are equal or not.
-   */
-  public equals(other: Vector3): boolean {
-    return this.x === other.x && this.y === other.y && this.z === other.z;
-  }
+	public static subtract(
+		a: Vector3,
+		b: Vector3,
+		out: Vector3 = new Vector3(),
+	): Vector3 {
+		out.x = a.x - b.x;
+		out.y = a.y - b.y;
+		out.z = a.z - b.z;
+		return out;
+	}
 
-  /**
-   * Returns the angle, in radians, between this vector and another vector.
-   * @param other The other vector.
-   * @returns The angle, in radians, between this vector and another vector.
-   */
-  public angleBetween(other: Vector3): number {
-    const denominator = Math.sqrt(this.mag_squared() * other.mag_squared());
+	public static multiply(
+		a: Vector3,
+		scalar: number,
+		out: Vector3 = new Vector3(),
+	): Vector3 {
+		out.x = a.x * scalar;
+		out.y = a.y * scalar;
+		out.z = a.z * scalar;
+		return out;
+	}
 
-    if (denominator === 0) return 0;
+	public static divide(
+		a: Vector3,
+		scalar: number,
+		out: Vector3 = new Vector3(),
+	): Vector3 {
+		if (scalar === 0) {
+			out.x = 0;
+			out.y = 0;
+			out.z = 0;
+		} else {
+			out.x = a.x / scalar;
+			out.y = a.y / scalar;
+			out.z = a.z / scalar;
+		}
+		return out;
+	}
 
-    const theta = this.dot(other) / denominator;
-    return Math.acos(Math.max(-1, Math.min(1, theta)));
-  }
+	public static negate(a: Vector3, out: Vector3 = new Vector3()): Vector3 {
+		out.x = -a.x;
+		out.y = -a.y;
+		out.z = -a.z;
+		return out;
+	}
 
-  public static get ZERO(): Vector3 {
-    return new Vector3(0, 0, 0);
-  }
+	public static normalize(a: Vector3, out: Vector3 = new Vector3()): Vector3 {
+		const magnitudeSq = a.magnitudeSquared();
+		if (magnitudeSq > 0) {
+			const magnitude = Math.sqrt(magnitudeSq);
+			out.x = a.x / magnitude;
+			out.y = a.y / magnitude;
+			out.z = a.z / magnitude;
+		} else {
+			out.x = 0;
+			out.y = 0;
+			out.z = 0;
+		}
+		return out;
+	}
+
+	// There is no 2D or 4D equavilent to cross product. Weird.
+	public static cross(
+		a: Vector3,
+		b: Vector3,
+		out: Vector3 = new Vector3(),
+	): Vector3 {
+		const ax = a.x;
+		const ay = a.y;
+		const az = a.z;
+		const bx = b.x;
+		const by = b.y;
+		const bz = b.z;
+
+		out.x = ay * bz - az * by;
+		out.y = az * bx - ax * bz;
+		out.z = ax * by - ay * bx;
+		return out;
+	}
+
+	public static lerp(
+		a: Vector3,
+		b: Vector3,
+		t: number,
+		out: Vector3 = new Vector3(),
+	): Vector3 {
+		const ax = a.x;
+		const ay = a.y;
+		const az = a.z;
+		const bx = b.x;
+		const by = b.y;
+		const bz = b.z;
+
+		out.x = ax + t * (bx - ax);
+		out.y = ay + t * (by - ay);
+		out.z = az + t * (bz - az);
+		return out;
+	}
+
+	public magnitude(): number {
+		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+	}
+
+	public magnitudeSquared(): number {
+		return this.x * this.x + this.y * this.y + this.z * this.z;
+	}
+
+	public static dot(a: Vector3, b: Vector3): number {
+		return a.x * b.x + a.y * b.y + a.z * b.z;
+	}
+
+	public static distance(a: Vector3, b: Vector3): number {
+		const dx = a.x - b.x;
+		const dy = a.y - b.y;
+		const dz = a.z - b.z;
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
+	}
+
+	public static squaredDistance(a: Vector3, b: Vector3): number {
+		const dx = a.x - b.x;
+		const dy = a.y - b.y;
+		const dz = a.z - b.z;
+		return dx * dx + dy * dy + dz * dz;
+	}
+
+	public static angleBetween(a: Vector3, b: Vector3): number {
+		const denominator = Math.sqrt(a.magnitudeSquared() * b.magnitudeSquared());
+
+		if (denominator === 0) return 0;
+
+		const theta = Vector3.dot(a, b) / denominator;
+		return Math.acos(Math.max(-1, Math.min(1, theta)));
+	}
+
+	public static equals(a: Vector3, b: Vector3, epsilon: number = 0): boolean {
+		if (epsilon === 0) {
+			return a.x === b.x && a.y === b.y && a.z === b.z;
+		}
+		return (
+			Math.abs(a.x - b.x) <= epsilon &&
+			Math.abs(a.y - b.y) <= epsilon &&
+			Math.abs(a.z - b.z) <= epsilon
+		);
+	}
 }

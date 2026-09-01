@@ -1,165 +1,204 @@
 /**
- * 2nd Dimension vector class.
+ * 2th Dimension vector class.
  */
 export class Vector2 {
-  /** x position */
-  public x: number;
-  /** y position */
-  public y: number;
+	/** x position */
+	public x: number;
+	/** y position */
+	public y: number;
 
-  /**
-   * Constructor. I mean what else is this?
-   * @param x The x coordinate.
-   * @param y The y coordinate.
-   */
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
+	/**
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 */
+	constructor(x: number = 0, y: number = 0) {
+		this.x = x;
+		this.y = y;
+	}
 
-  /**
-   * Add this vector with another vector. Returns the result.
-   * @param other The other vector.
-   * @returns The result of the addition operation conducted on the vectors.
-   */
-  public add(other: Vector2): Vector2 {
-    return new Vector2(this.x + other.x, this.y + other.y);
-  }
+	public set(x: number, y: number, z: number): this {
+		this.x = x;
+		this.y = y;
+		return this;
+	}
 
-  /**
-   * Subtract this vector with another vector. Returns the result.
-   * @param other The other vector.
-   * @returns The result of the subtraction operation conducted on the vectors.
-   */
-  public sub(other: Vector2): Vector2 {
-    return new Vector2(this.x - other.x, this.y - other.y);
-  }
+	public copy(v: Vector2): this {
+		this.x = v.x;
+		this.y = v.y;
+		return this;
+	}
 
-  /**
-   * Scale this vector using a scalar.
-   * @param other The scalar value.
-   * @returns The scaled vector.
-   */
-  public mul(scalar: number): Vector2 {
-    return new Vector2(this.x * scalar, this.y * scalar);
-  }
+	public clone(): Vector2 {
+		return new Vector2(this.x, this.y);
+	}
 
-  /**
-   * Returns the magnitude of the vector (length).
-   * @returns The magnitude of the vector.
-   */
-  public mag(): number {
-    return Math.sqrt(this.mag_squared());
-  }
+	// So these are the methods the user usually uses but they internally use the optimized methods
+	public add(v: Vector2): this {
+		return Vector2.add(this, v, this) as this;
+	}
 
-  /**
-   * Returns the squared magnitude of the vector. Useful for performance optimization as it avoids the `Math.sqrt` call.
-   * @returns The squared magnitude of the vector.
-   */
-  public mag_squared(): number {
-    return this.x * this.x + this.y * this.y;
-  }
+	public subtract(v: Vector2): this {
+		return Vector2.subtract(this, v, this) as this;
+	}
 
-  /**
-   * Clones the vector...
-   * @returns The clone of the vector.
-   */
-  public clone(): Vector2 {
-    return new Vector2(this.x, this.y);
-  }
+	public multiply(scalar: number): this {
+		return Vector2.multiply(this, scalar, this) as this;
+	}
 
-  /**
-   * Normalize the vector (makes its length 1, while preserving direction).
-   * @returns The normalized vector.
-   */
-  public normalize(): Vector2 {
-    const mag = this.mag();
+	public divide(scalar: number): this {
+		return Vector2.divide(this, scalar, this) as this;
+	}
 
-    if (mag === 0) return Vector2.ZERO;
+	public negate(): this {
+		return Vector2.negate(this, this) as this;
+	}
 
-    return this.mul(1 / mag);
-  }
+	public normalize(): this {
+		return Vector2.normalize(this, this) as this;
+	}
 
-  /**
-   * Returns the dot product with another vector.
-   * @param other The other vector.
-   * @returns The dot product result.
-   */
-  public dot(other: Vector2): number {
-    return this.x * other.x + this.y * other.y;
-  }
+	public lerp(target: Vector2, t: number): this {
+		return Vector2.lerp(this, target, t, this) as this;
+	}
 
-  /**
-   * Calculate the distance to another vector.
-   * @param other The other vector.
-   * @returns The euclidean distance.
-   */
-  public distanceTo(other: Vector2): number {
-    const dx = this.x - other.x;
-    const dy = this.y - other.y;
+	public dot(other: Vector2): number {
+		return Vector2.dot(this, other);
+	}
 
-    return Math.sqrt(dx * dx + dy * dy);
-  }
+	public distanceTo(other: Vector2): number {
+		return Vector2.distance(this, other);
+	}
 
-  /**
-   * Calculate the squared distance to another vector. Useful for optimization as it avoids the `Math.sqrt` call.
-   * @param other The other vector.
-   * @returns The squared euclidean distance.
-   */
-  public squaredDistanceTo(other: Vector2): number {
-    const dx = this.x - other.x;
-    const dy = this.y - other.y;
+	public squaredDistanceTo(other: Vector2): number {
+		return Vector2.squaredDistance(this, other);
+	}
 
-    return dx * dx + dy * dy;
-  }
+	public equals(other: Vector2, epsilon: number = 0): boolean {
+		return Vector2.equals(this, other, epsilon);
+	}
 
-  /**
-   * Checks if this vector is equal to another vector.
-   * @param other The other vector.
-   * @returns Whether they are equal or not.
-   */
-  public equals(other: Vector2): boolean {
-    return this.x === other.x && this.y === other.y;
-  }
+	public angleTo(other: Vector2): number {
+		return Vector2.angleBetween(this, other);
+	}
 
-  /**
-   * Returns the angle of the vector based on (0, 0).
-   * @returns The angle of the vector.
-   */
-  public angle(): number {
-    return Math.atan2(this.y, this.x);
-  }
+	// These are the optimized methods. They only allocate new Vector2 if an existing is not given.
+	public static add(
+		a: Vector2,
+		b: Vector2,
+		out: Vector2 = new Vector2(),
+	): Vector2 {
+		out.x = a.x + b.x;
+		out.y = a.y + b.y;
+		return out;
+	}
 
-  /**
-   * Returns the angle, in radians, between this vector and another vector.
-   * @param other The other vector.
-   * @returns The angle, in radians, between this vector and another vector.
-   */
-  public angleBetween(other: Vector2): number {
-    const denominator = Math.sqrt(this.mag_squared() * other.mag_squared());
+	public static subtract(
+		a: Vector2,
+		b: Vector2,
+		out: Vector2 = new Vector2(),
+	): Vector2 {
+		out.x = a.x - b.x;
+		out.y = a.y - b.y;
+		return out;
+	}
 
-    if (denominator === 0) return 0;
+	public static multiply(
+		a: Vector2,
+		scalar: number,
+		out: Vector2 = new Vector2(),
+	): Vector2 {
+		out.x = a.x * scalar;
+		out.y = a.y * scalar;
+		return out;
+	}
 
-    const theta = this.dot(other) / denominator;
-    return Math.acos(Math.max(-1, Math.min(1, theta)));
-  }
+	public static divide(
+		a: Vector2,
+		scalar: number,
+		out: Vector2 = new Vector2(),
+	): Vector2 {
+		if (scalar === 0) {
+			out.x = 0;
+			out.y = 0;
+		} else {
+			out.x = a.x / scalar;
+			out.y = a.y / scalar;
+		}
+		return out;
+	}
 
-  /**
-   * Rotates a vector.
-   * @param angleRadians The angle to rotate it by CW, in radians.
-   * @returns The new rotated vector.
-   */
-  public rotate(angleRadians: number): Vector2 {
-    const cos = Math.cos(angleRadians);
-    const sin = Math.sin(angleRadians);
+	public static negate(a: Vector2, out: Vector2 = new Vector2()): Vector2 {
+		out.x = -a.x;
+		out.y = -a.y;
+		return out;
+	}
 
-    return new Vector2(
-      this.x * cos - this.y * sin,
-      this.x * sin + this.y * cos,
-    );
-  }
+	public static normalize(a: Vector2, out: Vector2 = new Vector2()): Vector2 {
+		const magnitudeSq = a.magnitudeSquared();
+		if (magnitudeSq > 0) {
+			const magnitude = Math.sqrt(magnitudeSq);
+			out.x = a.x / magnitude;
+			out.y = a.y / magnitude;
+		} else {
+			out.x = 0;
+			out.y = 0;
+		}
+		return out;
+	}
 
-  public static get ZERO(): Vector2 {
-    return new Vector2(0, 0);
-  }
+	public static lerp(
+		a: Vector2,
+		b: Vector2,
+		t: number,
+		out: Vector2 = new Vector2(),
+	): Vector2 {
+		const ax = a.x;
+		const ay = a.y;
+		const bx = b.x;
+		const by = b.y;
+
+		out.x = ax + t * (bx - ax);
+		out.y = ay + t * (by - ay);
+		return out;
+	}
+
+	public magnitude(): number {
+		return Math.sqrt(this.x * this.x + this.y * this.y);
+	}
+
+	public magnitudeSquared(): number {
+		return this.x * this.x + this.y * this.y;
+	}
+
+	public static dot(a: Vector2, b: Vector2): number {
+		return a.x * b.x + a.y * b.y;
+	}
+
+	public static distance(a: Vector2, b: Vector2): number {
+		const dx = a.x - b.x;
+		const dy = a.y - b.y;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	public static squaredDistance(a: Vector2, b: Vector2): number {
+		const dx = a.x - b.x;
+		const dy = a.y - b.y;
+		return dx * dx + dy * dy;
+	}
+
+	public static angleBetween(a: Vector2, b: Vector2): number {
+		const denominator = Math.sqrt(a.magnitudeSquared() * b.magnitudeSquared());
+
+		if (denominator === 0) return 0;
+
+		const theta = Vector2.dot(a, b) / denominator;
+		return Math.acos(Math.max(-1, Math.min(1, theta)));
+	}
+
+	public static equals(a: Vector2, b: Vector2, epsilon: number = 0): boolean {
+		if (epsilon === 0) {
+			return a.x === b.x && a.y === b.y;
+		}
+		return Math.abs(a.x - b.x) <= epsilon && Math.abs(a.y - b.y) <= epsilon;
+	}
 }
