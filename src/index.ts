@@ -45,4 +45,7 @@ engine.onFrame = (renderer, timestamp, delta) => {
 	myTransform.setScale(new Vector3(1, 1, 1));
 
 	renderer.drawMesh(myMesh, myTransform);
+
+	renderer.drawCircle(-2, -2, 1, -10);
+	renderer.drawTriangle(Math.sin(timestamp / 2000), -1, -0.5, Math.sin(timestamp / 2000)+1, 2, Math.sin(timestamp / 2000)*2+1, -10);
 };

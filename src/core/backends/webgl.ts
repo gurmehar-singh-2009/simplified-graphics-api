@@ -4,16 +4,20 @@ import { fragmentShaderSource } from "../../graphics/shaders/webgl/fragment.ts";
 import type { Camera } from "../camera.ts";
 import type { MeshData, Mesh } from "../../graphics/mesh.ts";
 import { Transform } from "../../math/transform.ts";
+import { Matrix4 } from "../../math/matrix.ts";
+import { Vector3 } from "../../math/vector3.ts";
 
 interface ShaderLocations {
 	program: WebGLProgram;
 	attributes: {
 		position: GLint;
+		normal: GLint;
 		texCoord: GLint;
 	};
 	uniforms: {
 		viewProjection: WebGLUniformLocation;
 		meshTransform: WebGLUniformLocation;
+		normalMatrix: WebGLUniformLocation;
 	};
 }
 
@@ -22,10 +26,16 @@ export class WebGLBackend implements Backend {
 	private ctx: WebGL2RenderingContext;
 	private shaderLocations: ShaderLocations;
 
+	private tempNormalMatrix = new Float32Array(9);
+
 	constructor(canvas: HTMLCanvasElement, configs: RenderConfigs) {
 		this.configs = configs;
 
 		this.ctx = canvas.getContext("webgl2")!;
+
+		this.ctx.enable(this.ctx.CULL_FACE);
+		this.ctx.cullFace(this.ctx.BACK);
+		this.ctx.frontFace(this.ctx.CCW);
 
 		this.shaderLocations = this.initShaderProgram(
 			vertexShaderSource,
@@ -62,6 +72,7 @@ export class WebGLBackend implements Backend {
 
 			attributes: {
 				position: this.ctx.getAttribLocation(program, "a_position"),
+				normal: this.ctx.getAttribLocation(program, "a_normal"),
 				texCoord: this.ctx.getAttribLocation(program, "a_texCoord"),
 			},
 
@@ -71,6 +82,7 @@ export class WebGLBackend implements Backend {
 					"u_viewProjection",
 				)!,
 				meshTransform: this.ctx.getUniformLocation(program, "u_meshTransform")!,
+				normalMatrix: this.ctx.getUniformLocation(program, "u_normalMatrix")!,
 			},
 		};
 	}
@@ -88,7 +100,7 @@ export class WebGLBackend implements Backend {
 		return shader;
 	}
 
-	clear(r: number, g: number, b: number, a: number): void {
+	public clear(r: number, g: number, b: number, a: number): void {
 		this.ctx.clearColor(r / 255, g / 255, b / 255, a);
 		this.ctx.clear(this.ctx.COLOR_BUFFER_BIT);
 	}
@@ -101,14 +113,14 @@ export class WebGLBackend implements Backend {
 		);
 	}
 
-	resize(width: number, height: number): void {
+	public resize(width: number, height: number): void {
 		this.ctx.viewport(0, 0, width, height);
 	}
 
-	public createMesh(data: MeshData): Mesh {
-		const vao = this.ctx.createVertexArray()!;
-		this.ctx.bindVertexArray(vao);
-
+	private createVertexData(data: MeshData): {
+		vertexData: Float32Array;
+		floatsPerVert: number;
+	} {
 		const vertexCount = data.positions.length / 3;
 		const hasNormals = data.normals !== undefined && data.normals.length > 0;
 		const hasUVs = data.uvs !== undefined && data.uvs.length > 0;
@@ -119,7 +131,7 @@ export class WebGLBackend implements Backend {
 		if (hasUVs) floatsPerVert += 2;
 		if (hasTangents) floatsPerVert += 4;
 
-		let vertexData = new Float32Array(vertexCount * floatsPerVert);
+		const vertexData = new Float32Array(vertexCount * floatsPerVert);
 
 		const positions = data.positions;
 		const normals = hasNormals ? data.normals : undefined;
@@ -151,45 +163,56 @@ export class WebGLBackend implements Backend {
 			}
 		}
 
+		return { vertexData, floatsPerVert };
+	}
+
+	public createMesh(data: MeshData): Mesh {
+		const { vertexData, floatsPerVert } = this.createVertexData(data);
+
+		const drawType = this.ctx.DYNAMIC_DRAW;
+		//const drawType = this.ctx.STATIC_DRAW;
+
+		const vao = this.ctx.createVertexArray()!;
+		this.ctx.bindVertexArray(vao);
+
 		const vbo = this.ctx.createBuffer()!;
 		this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, vbo);
-		this.ctx.bufferData(
-			this.ctx.ARRAY_BUFFER,
-			vertexData,
-			this.ctx.STATIC_DRAW,
-		);
+		this.ctx.bufferData(this.ctx.ARRAY_BUFFER, vertexData, drawType);
 
 		const ebo = this.ctx.createBuffer()!;
 		this.ctx.bindBuffer(this.ctx.ELEMENT_ARRAY_BUFFER, ebo);
-		this.ctx.bufferData(
-			this.ctx.ELEMENT_ARRAY_BUFFER,
-			data.indices,
-			this.ctx.STATIC_DRAW,
-		);
+		this.ctx.bufferData(this.ctx.ELEMENT_ARRAY_BUFFER, data.indices, drawType);
 
 		const stride = floatsPerVert * 4;
-		let byteOffset = 0;
+		let offset = 0;
 
-		if (this.shaderLocations.attributes.position !== -1) {
-			this.ctx.enableVertexAttribArray(
-				this.shaderLocations.attributes.position,
-			);
+		this.ctx.enableVertexAttribArray(this.shaderLocations.attributes.position);
+		this.ctx.vertexAttribPointer(
+			this.shaderLocations.attributes.position,
+			3,
+			this.ctx.FLOAT,
+			false,
+			stride,
+			offset,
+		);
+		offset += 12;
+
+		const hasNormals = data.normals !== undefined && data.normals.length > 0;
+		if (hasNormals) {
+			this.ctx.enableVertexAttribArray(this.shaderLocations.attributes.normal);
 			this.ctx.vertexAttribPointer(
-				this.shaderLocations.attributes.position,
+				this.shaderLocations.attributes.normal,
 				3,
 				this.ctx.FLOAT,
 				false,
 				stride,
-				byteOffset,
+				offset,
 			);
-		}
-		byteOffset += 3 * 4;
-
-		if (hasNormals) {
-			byteOffset += 3 * 4;
+			offset += 12;
 		}
 
-		if (hasUVs && this.shaderLocations.attributes.texCoord !== -1) {
+		const hasUVs = data.uvs !== undefined && data.uvs.length > 0;
+		if (hasUVs) {
 			this.ctx.enableVertexAttribArray(
 				this.shaderLocations.attributes.texCoord,
 			);
@@ -199,9 +222,8 @@ export class WebGLBackend implements Backend {
 				this.ctx.FLOAT,
 				false,
 				stride,
-				byteOffset,
+				offset,
 			);
-			byteOffset += 2 * 4;
 		}
 
 		this.ctx.bindVertexArray(null);
@@ -220,13 +242,43 @@ export class WebGLBackend implements Backend {
 		};
 	}
 
-	public drawMesh(mesh: Mesh, transform: Transform): void {
+	public updateMesh(mesh: Mesh, data: MeshData): void {
+		const { vertexData, floatsPerVert } = this.createVertexData(data);
+
+		this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, mesh.vbo);
+		this.ctx.bufferSubData(this.ctx.ARRAY_BUFFER, 0, vertexData);
+		this.ctx.bindBuffer(this.ctx.ARRAY_BUFFER, null);
+
+		this.ctx.bindBuffer(this.ctx.ELEMENT_ARRAY_BUFFER, mesh.ebo);
+		this.ctx.bufferSubData(this.ctx.ELEMENT_ARRAY_BUFFER, 0, data.indices);
+		this.ctx.bindBuffer(this.ctx.ELEMENT_ARRAY_BUFFER, null);
+
+		mesh.indexCount = data.indices.length;
+		mesh.indexType =
+			data.indices instanceof Uint16Array
+				? this.ctx.UNSIGNED_SHORT
+				: this.ctx.UNSIGNED_INT;
+	}
+
+	public drawMesh(mesh: Mesh, transformMatrix: Matrix4): void {
+		// Important note: Use transform matrix instantly (or copy) since it might get mutated in the future.
+
 		this.ctx.bindVertexArray(mesh.vao);
 
 		this.ctx.uniformMatrix4fv(
 			this.shaderLocations.uniforms.meshTransform,
 			false,
-			transform.matrix4.data,
+			transformMatrix.data,
+		);
+
+		const normalMatrixData = Matrix4.normalMatrix(
+			transformMatrix,
+			this.tempNormalMatrix,
+		);
+		this.ctx.uniformMatrix3fv(
+			this.shaderLocations.uniforms.normalMatrix,
+			false,
+			normalMatrixData,
 		);
 
 		this.ctx.drawElements(

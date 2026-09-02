@@ -156,6 +156,61 @@ export class Matrix4 {
 		return out;
 	}
 
+	// Maybe add a Matrix3 class later
+	public toNormalMatrix(out: Float32Array = new Float32Array(9)): Float32Array {
+		return Matrix4.normalMatrix(this, out);
+	}
+
+	public static normalMatrix(
+		m: Matrix4,
+		out: Float32Array = new Float32Array(9),
+	): Float32Array {
+		const mData = m.data;
+
+		const a00 = mData[0]!;
+		const a01 = mData[1]!;
+		const a02 = mData[2]!;
+		const a10 = mData[4]!;
+		const a11 = mData[5]!;
+		const a12 = mData[6]!;
+		const a20 = mData[8]!;
+		const a21 = mData[9]!;
+		const a22 = mData[10]!;
+
+		const b01 = a22 * a11 - a12 * a21;
+		const b11 = -a22 * a10 + a12 * a20;
+		const b21 = a21 * a10 - a11 * a20;
+
+		let determinant = a00 * b01 + a01 * b11 + a02 * b21;
+
+		if (determinant === 0) {
+			out[0] = 1;
+			out[1] = 0;
+			out[2] = 0;
+			out[3] = 0;
+			out[4] = 1;
+			out[5] = 0;
+			out[6] = 0;
+			out[7] = 0;
+			out[8] = 1;
+			return out;
+		}
+
+		determinant = 1 / determinant;
+
+		out[0] = b01 * determinant;
+		out[1] = (-a22 * a01 + a02 * a21) * determinant;
+		out[2] = (a12 * a01 - a02 * a11) * determinant;
+		out[3] = b11 * determinant;
+		out[4] = (a22 * a00 - a02 * a20) * determinant;
+		out[5] = (-a12 * a00 + a02 * a10) * determinant;
+		out[6] = b21 * determinant;
+		out[7] = (-a21 * a00 + a01 * a20) * determinant;
+		out[8] = (a11 * a00 - a01 * a10) * determinant;
+
+		return out;
+	}
+
 	public static transformDirection(
 		m: Matrix4,
 		v: Vector3,
@@ -222,6 +277,45 @@ export class Matrix4 {
 		outData[12] = 0;
 		outData[13] = 0;
 		outData[14] = 0;
+		outData[15] = 1;
+
+		return out;
+	}
+
+	public static fromTriangle(
+		vertex1: Vector3,
+		vertex2: Vector3,
+		vertex3: Vector3,
+		out: Matrix4 = new Matrix4()
+	): Matrix4 {
+		let outData = out.data;
+
+		Vector3.subtract(vertex2, vertex1, Matrix4.tempVector1);
+		Vector3.subtract(vertex3, vertex1, Matrix4.tempVector2);
+		Vector3.cross(Matrix4.tempVector1, Matrix4.tempVector2, Matrix4.tempVector3);
+
+		// Column 0
+		outData[0] = Matrix4.tempVector1.x;
+		outData[1] = Matrix4.tempVector1.y;
+		outData[2] = Matrix4.tempVector1.z;
+		outData[3] = 0;
+
+		// Column 1
+		outData[4] = Matrix4.tempVector2.x;
+		outData[5] = Matrix4.tempVector2.y;
+		outData[6] = Matrix4.tempVector2.z;
+		outData[7] = 0;
+
+		// Column 2
+		outData[8] = Matrix4.tempVector3.x;
+		outData[9] = Matrix4.tempVector3.y;
+		outData[10] = Matrix4.tempVector3.z;
+		outData[11] = 0;
+
+		// Column 3
+		outData[12] = vertex1.x;
+		outData[13] = vertex1.y;
+		outData[14] = vertex1.z;
 		outData[15] = 1;
 
 		return out;

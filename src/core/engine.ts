@@ -47,7 +47,7 @@ export class Engine {
 				this.renderEvent.updateView(this.activeCamera);
 			}
 
-			this.renderEvent.processFrame();
+			//this.renderEvent.processFrame();
 
 			requestAnimationFrame(loop);
 		};

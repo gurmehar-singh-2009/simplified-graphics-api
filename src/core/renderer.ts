@@ -1,4 +1,5 @@
 import type { Mesh, MeshData } from "../graphics/mesh";
+import type { Matrix4 } from "../math/matrix";
 import type { Quaternion } from "../math/quaternion";
 import type { Transform } from "../math/transform";
 import type { Vector2 } from "../math/vector2";
@@ -41,7 +42,8 @@ export interface Backend {
 	clear?(r: number, g: number, b: number, a: number): void;
 
 	createMesh(data: MeshData): Mesh;
-	drawMesh(mesh: Mesh, transform: Transform): void;
+	updateMesh(mesh: Mesh, data: MeshData): void;
+	drawMesh(mesh: Mesh, transformMatrix: Matrix4): void;
 
 	resize?(width: number, height: number): void;
 	updateView?(camera: Camera): void;
