@@ -17,6 +17,9 @@
 </div>
 
 ---
+> [!CAUTION]
+> **This is the experimental branch.** For the stable version switch to the main branch.
+
 > [!NOTE]
 > **Library is in active development.** Core systems are currently being written and will change without warning.
 

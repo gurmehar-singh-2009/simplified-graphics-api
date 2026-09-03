@@ -41,11 +41,11 @@ engine.setCamera(cam);
 engine.onFrame = (renderer, timestamp, delta) => {
 	renderer.clear(0, 0, 0, 1);
 
-	myTransform.setPosition(Math.sin(timestamp / 200) * 3, 0, -5);
+	myTransform.setPosition(Math.sin(timestamp / 200) * 3, 0, -15);
 	myTransform.setScale(new Vector3(1, 1, 1));
 
 	renderer.drawMesh(myMesh, myTransform);
 
 	renderer.drawCircle(-2, -2, 1, -10);
-	renderer.drawTriangle(Math.sin(timestamp / 2000), -1, -0.5, Math.sin(timestamp / 2000)+1, 2, Math.sin(timestamp / 2000)*2+1, -10);
+	renderer.drawTriangle(2, Math.sin(timestamp / 2000)*2+1, -0.5, Math.sin(timestamp / 2000)+1, Math.sin(timestamp / 2000), -1, -10);
 };

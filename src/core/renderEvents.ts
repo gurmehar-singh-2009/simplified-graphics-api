@@ -139,7 +139,7 @@ export class RenderEvent {
 		rot: number = 0,
 		z: number = 0,
 	): void {
-		this.drawRegularPolygon(x, y, size, 5, rot);
+		this.drawRegularPolygon(x, y, size, 5, rot, z);
 	}
 
 	public drawHexagon(

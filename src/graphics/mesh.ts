@@ -125,15 +125,15 @@ export class MeshBuilder {
 			{
 				vertices: [
 					new Vector3(0, 0, 0),
-					new Vector3(0, 1, 0),
-					new Vector3(1, 0, 0)
+					new Vector3(1, 0, 0),
+					new Vector3(0, 1, 0)
 				],
 				normal: new Vector3(0, 0, 1),
 				tangent: new Vector4(1, 0, 0, 1),
 				uvs: [
 					new Vector2(0, 0),
-					new Vector2(0, 1),
-					new Vector2(1, 0)
+					new Vector2(1, 0),
+					new Vector2(0, 1)
 				],
 			},
 		];
